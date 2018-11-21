@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import socket
 import threading
 # The following file is client_server model.
@@ -34,7 +36,7 @@ class Client(object):
 	def receive(self):
 		data =  self.s.recv(1024)
 		print "received data:", data
-	# Leave the room an notify the server
+	# Leave the room and notify the server
 	def leave(self):
 		self.send(self.character + " leave the room")
 		self.s.close()
