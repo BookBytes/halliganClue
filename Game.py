@@ -69,7 +69,7 @@ class Element(object):
     def getLocation(self):
         return self.location
 
-    def setLocation(self, x, y):
+    def setLocation(self, x, y): # take map?
         self.location = [x, y]
 
 
@@ -136,6 +136,7 @@ class Game(object):
             x, y = roomLocations[room]
             weaponSym = random.choice(weaponSyms)
             self.weapons.append(Weapon(x, y, item, weaponSym))
+            self.map = self.map[0:((y*77) + x)] + weaponSym + self.map[((y*77) + x + 1):]  # move this to element class
             roomLocations.pop(room)
             weaponSyms.remove(weaponSym)
 
