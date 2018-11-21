@@ -13,9 +13,10 @@ class Server(object):
         self.number = 0
         self.lock = threading.Lock()
 
-    def handle_client(self, addr, conn):
-        # send character data
-
+    def handle_client(self, addr, conn, data):
+        # TODO - send character data
+        # send map
+        conn.send(data)
         while 1:
             data = conn.recv(20)
             if not data:
@@ -50,7 +51,7 @@ class Server(object):
 
         for i in range(len(conns)):
             threads.append(threading.Thread(target=self.handle_client,
-                                            args=(addrList[i], conns[i])))
+                                            args=(addrList[i], conns[i], game.map)))
             threads[-1].start()
 
         for thread in threads:
