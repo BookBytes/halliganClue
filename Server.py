@@ -1,5 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import socket
 import threading
+from Game import Game
 
 
 class Server(object):
@@ -11,6 +14,8 @@ class Server(object):
         self.lock = threading.Lock()
 
     def handle_client(self, addr, conn):
+        # send character data
+
         while 1:
             data = conn.recv(20)
             if not data:
@@ -20,23 +25,34 @@ class Server(object):
         conn.close()
 
     def run(self):
-        thread = []
-        addr = {}
-        conn = []
-        addr2 = []
+        addrToGame = {}
+        conns = []
+        addrList = []
+
         while 1:
             while self.number < 3:
-                conn1, addr1 = self.s.accept()
-                if addr1 not in addr:
-                    conn.append(conn1)
-                    addr2.append(addr1)
-                    addr[addr1] = 1
+                incomingConn, incomingAddr = self.s.accept()
+                if incomingAddr not in addrToGame:
+                    conns.append(incomingConn)
+                    addrList.append(incomingAddr)
+                    addrToGame[incomingAddr] = 1
                     self.number += 1
-                    print 'Connection address:', addr1
-            for conn1 in conn:
-                conn1.send('Game can start now!')
+                    print 'Connection address:', incomingAddr
+            for conn in conns:
+                conn.send('Game can start now!')
             break
-        for i in range(len(conn)):
-            thread.append(threading.Thread(target = self.handle_client,
-                                           args = (addr2[i],conn[i])))
-            thread[-1].start()
+
+        self.initiateGame(conns, addrList)
+
+    def initiateGame(self, conns, addrList):
+        threads = []
+        game = Game()
+
+        for i in range(len(conns)):
+            threads.append(threading.Thread(target=self.handle_client,
+                                            args=(addrList[i], conns[i])))
+            threads[-1].start()
+
+        for thread in threads:
+            thread.join()
+
