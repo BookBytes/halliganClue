@@ -45,4 +45,4 @@ class Client(object):
 		self.send(self.character + " request " + element)
 	# Request map from the server
 	def request_map(self):
-		self.send(self.character + " request " + map)
+		self.send(self.character + " request map")
