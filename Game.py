@@ -131,14 +131,6 @@ class Game(object):
         weaponSyms = ["~", "!", "#", "$", "%", "&"]  # to be replaced by images for GUI
 
         self.weapons = []
-        for item in items:
-            room = random.choice(roomLocations)
-            x, y = roomLocations[room]
-            weaponSym = random.choice(weaponSyms)
-            self.weapons.append(Weapon(x, y, item, weaponSym))
-            self.map = self.map[0:((y*77) + x)] + weaponSym + self.map[((y*77) + x + 1):]  # move this to element class
-            roomLocations.pop(room)
-            weaponSyms.remove(weaponSym)
 
         self.deck = Deck()
         self.map = "+=======================================================================+\n" \
@@ -178,3 +170,12 @@ class Game(object):
                    "|                   ---------                   ---------               |\n" \
                    "|                   | c |   |                   |   |   |               |\n" \
                    "+=======================================================================+"
+
+        for item in items:
+            room = random.choice(places)
+            x, y = roomLocations[room]
+            weaponSym = random.choice(weaponSyms)
+            self.weapons.append(Weapon(x, y, item, weaponSym))
+            self.map = self.map[0:((y*77) + x)] + weaponSym + self.map[((y*77) + x + 1):]  # move this to element class
+            places.remove(room)
+            weaponSyms.remove(weaponSym)

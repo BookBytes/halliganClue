@@ -12,6 +12,7 @@ class Server(object):
         self.s.listen(10)
         self.number = 0
         self.lock = threading.Lock()
+        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     def handle_client(self, addr, conn, data):
         # TODO - send character data
@@ -56,4 +57,3 @@ class Server(object):
 
         for thread in threads:
             thread.join()
-
