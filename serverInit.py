@@ -1,3 +1,3 @@
-from Server import Server
+from server import Server
 s = Server()
 s.run()
