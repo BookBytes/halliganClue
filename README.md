@@ -10,12 +10,14 @@ Run ./test in a terminal window with forwarding enabled to automatically create 
 ### An ideal list of messages
 ##### Client <-> Server
 
-* Join ->
-    * <-  Join Notification (All)
+* Join (name)->
+    * <- Join Notification (All)
 * Character list request ->
     * <- Available Characters
 * Character request ->
     * <- Confirmation OR character list if choice taken
+    * <- Deck
+
 
 (Weapon placement stage)
 
@@ -31,4 +33,7 @@ Take turn:
 * Suggestion rebuttal or pass ->
     * <- Rebuttal info or nothing (OG player)
     * <- Rebuttal notification (all)
-    
+
+
+* leave ->
+    * <- Graceful exit (all)

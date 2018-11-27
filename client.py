@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import socket
 import threading
+from message import Message, Code
 # The following file is client_server model.
 # How to run my program:
 # Open different tabs in terminal, one terminal can run server code
@@ -18,17 +19,33 @@ import threading
 
 class Client(object):
 	# Initiate the client with character and cards
-	def __init__(self, name, cards):
+	def __init__(self):
 		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.character = name
-		self.cards = cards
-	# Run the client
+
+		#io_lock = threading.Lock()
+		#receiver = threading.Thread(target=receive, args = (io_lock))
+		#intera
 	def run(self):
 		self.s.connect(('127.0.0.1', 5005))
+		self.wait_to_start()
+
+	def wait_to_start(self):
 		while 1:
-			data = self.s.recv(1024)
-			print data
-			break
+			raw_msg = self.s.recv(1024)
+			if raw_msg:
+				msg = Message(str = raw_msg)
+				#print "Received:"
+				#print msg.get_command()
+				#print "------"
+				print msg.get_data()
+
+	def start_game(self):
+		pass
+
+
+	def receive(self, iolock):
+		pass
+
 	# Send message to the server
 	def send(self, MESSAGE):
 		self.s.send(MESSAGE)
@@ -46,3 +63,8 @@ class Client(object):
 	# Request map from the server
 	def request_map(self):
 		self.send(self.character + " request map")
+
+
+
+if __name__ == "__main__":
+	c = Client()
