@@ -29,15 +29,21 @@ class Client(object):
 		self.s.connect(('127.0.0.1', 5005))
 		self.wait_to_start()
 
+	def receive_next(self):
+		msg_size = self.s.recv(4)
+		raw_msg = self.s.recv(int(msg_size))
+		return raw_msg
+
 	def wait_to_start(self):
 		while 1:
-			raw_msg = self.s.recv(1024)
-			if raw_msg:
-				msg = Message(str = raw_msg)
-				#print "Received:"
-				#print msg.get_command()
-				#print "------"
-				print msg.get_data()
+			raw_msg = self.receive_next()
+			msg = Message(str = raw_msg)
+			print "Received:"
+			print msg.get_command()
+			data = msg.get_data()
+			print data
+			print "------"
+
 
 	def start_game(self):
 		pass

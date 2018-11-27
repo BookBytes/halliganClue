@@ -3,7 +3,7 @@
 import socket
 import threading
 from game import Game
-from message import Message, Code, CHUNK_SIZE
+from message import Message, Code
 import math
 
 class Server(object):
@@ -48,22 +48,8 @@ class Server(object):
         self.initiateGame(conns, addrList)
 
     def send(self, conn, command, data = None):
-        """ Sends a message to the specified connection address, breaks data
-            into chunks if needed. """
-        if data:
-            chunks = int(math.ceil(float(len(data))/CHUNK_SIZE))
-            print "chunks are", chunks
-            data_chunk = [ data[i : i + CHUNK_SIZE] 
-                            for i in range(0, len(data), CHUNK_SIZE) ]
-            print "data chunks are", data_chunk
-            for i in range(0, chunks):
-                print "i is", i
-                hasMore = False if i == (chunks - 1) else True
-                conn.send(Message(  command     = command,
-                                    data        = data_chunk[i],
-                                    hasMore     = hasMore).encode())
-        else:
-            conn.send(Message(command = command).encode())
+        """ Sends a message to the specified connection address"""
+        conn.send(Message(command = command, data = data).encode())
 
     def initiateGame(self, conns, addrList):
         threads = []
