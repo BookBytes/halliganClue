@@ -3,6 +3,7 @@
 # Reference for declaration
 # https://stackoverflow.com/questions/6289474/
 # working-with-utf-8-encoding-in-python-source
+
 import random
 import itertools
 
@@ -12,21 +13,8 @@ class Card(object):
         self.name = name
         self.image = card_img
 
-
 class Deck(object):
-    def __init__(self):
-        characters = ['Donna "The Coordinator" Cirelli',
-                      'Mark "The Shark" Sheldon',
-                      'Megan "The Administrator" Monaghan',
-                      'Megan "The Captain" Monroe',
-                      'Ming "The Hacker" Chow',
-                      'Norman "The Linguist" Ramsey']
-        items = ['NP = P proof', '105 Textbook',
-                 'SQL Injection', 'Binary Bomb', 'Dead squirrel',
-                 'Dry white board marker']
-        places = ['Collab Room', 'Entryway', 'EECS Office',
-                  'Kitchen', 'Fishbowl', 'The Computer Lab', 'Couches',
-                  'Admin Office', 'Extension']
+    def __init__(self, characters, items, places):
         char = random.choice(characters)
         item = random.choice(items)
         place = random.choice(places)
@@ -48,7 +36,6 @@ class Deck(object):
             card = random.choice(self.userCards)
             hand.append(card)
             self.userCards.remove(card)
-
         return hand
 
     def checkSolution(self, guess):
@@ -132,7 +119,7 @@ class Game(object):
 
         self.weapons = []
 
-        self.deck = Deck()
+        self.deck = Deck(charOrder[:], items[:], places[:]) #Ensure copy is passed
         self.map = "+=======================================================================+\n" \
                    "|                   |   | C |               | H |   |   |               |\n" \
                    "|                   ---------               -------------               |\n" \
