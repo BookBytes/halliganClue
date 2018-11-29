@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import socket
 import threading
-from message import Message, Code
+from message import Message, Code, receive_next
 # The following file is client_server model.
 # How to run my program:
 # Open different tabs in terminal, one terminal can run server code
@@ -29,36 +29,29 @@ class Client(object):
 		self.s.connect(('127.0.0.1', 5005))
 		self.wait_to_start()
 
-	def receive_next(self):
-		msg_size = self.s.recv(4)
-		raw_msg = self.s.recv(int(msg_size))
-		return raw_msg
-
 	def wait_to_start(self):
+		self.name = raw_input("What's your name:")
+		self.send(Code.DATA, self.name)
+
 		while 1:
-			raw_msg = self.receive_next()
+			raw_msg = receive_next(self.s)
 			msg = Message(str = raw_msg)
 			print "Received:"
 			print msg.get_command()
 			data = msg.get_data()
 			print data
 			print "------"
+		self.name = raw_input("Nice.")
 
 
 	def start_game(self):
 		pass
 
+	# Send message to server
+	def send(self, command, data = None):
+		msg = Message(command = command, data = data)
+		self.s.send( msg.encode() )
 
-	def receive(self, iolock):
-		pass
-
-	# Send message to the server
-	def send(self, MESSAGE):
-		self.s.send(MESSAGE)
-	# Receive message from server and print out the message
-	def receive(self):
-		data =  self.s.recv(1024)
-		print "received data:", data
 	# Leave the room and notify the server
 	def leave(self):
 		self.send(self.character + " leave the room")

@@ -5,6 +5,9 @@ A Halligan-themed Clue game
 Run ./test in a terminal window with forwarding enabled to automatically create three clients (all client objects called "c").
 
 
+## Notes
+raw_input blocks receiving - use curses to fix this?
+Just using the name thing to test notifications.
 
 
 ### An ideal list of messages

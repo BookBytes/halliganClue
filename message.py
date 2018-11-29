@@ -4,10 +4,16 @@ import sys
 
 DATA = "data"
 
-MSG_SIZE = 1024
-CHUNK_SIZE = 900 # For breaking up data, keep total msg size <1024
+SIZE_DIGITS = 4 # Length of the string representing the message size
+
+def receive_next(conn):
+    """ Receives next set of data based on prepended size information """
+    msg_size = conn.recv(SIZE_DIGITS)
+    raw_msg = conn.recv(int(msg_size))
+    return raw_msg
 
 class Code(Enum):
+    """ Valid message commands """
     JOIN = 1
     START = 2
     LEAVE = 3
@@ -32,8 +38,7 @@ class Message:
             IMPORTANT -> Message(msg.encode) will NOT work"""
         msg = json.dumps({ self.command.value : self.data})
         size = len(msg)
-        str_size = "0" * (4 - len(str(size))) + str(size)
-        print "size of message",
+        str_size = "0" * (SIZE_DIGITS - len(str(size))) + str(size)
         return str_size + msg
 
     def toString(self):
@@ -42,9 +47,9 @@ class Message:
         return self.encode()
 
     def get_command(self):
-        # Get Code instance of command
+        """ Get Code instance of command """
         return self.command
 
     def get_data(self):
-        # Get body data
+        """ Get body data """
         return self.data

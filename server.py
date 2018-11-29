@@ -3,8 +3,9 @@
 import socket
 import threading
 from game import Game
-from message import Message, Code
+from message import Message, Code, receive_next
 import math
+from contacts import Contacts
 
 class Server(object):
     def __init__(self):
@@ -15,49 +16,49 @@ class Server(object):
         self.lock = threading.Lock()
         self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-    def handle_client(self, addr, conn, data):
+
+    def handle_client(self, addr, id_self, data):
+        conn_self = self.contacts[id_self]
+
         # TODO - send character data
         # send map
-        self.send(conn,Code.DATA, data)
+        self.contacts.notify(id_self, Code.DATA, data)
+
         while 1:
-            data = conn.recv(20)
+            data = receive_next( conn_self )
             if not data:
                 break
             print "received data:", data
-            self.send(conn, Code.DATA, data)
-        conn.close()
+            self.contacts.notifyAll(Code.DATA, data)
+
+        conn_self.close()
 
     def run(self):
         addrToGame = {}
-        conns = []
+        self.contacts = Contacts()
         addrList = []
 
         while 1:
             while self.number < 3:
                 incomingConn, incomingAddr = self.s.accept()
                 if incomingAddr not in addrToGame:
-                    conns.append(incomingConn)
+                    self.contacts.add(incomingConn)
                     addrList.append(incomingAddr)
                     addrToGame[incomingAddr] = 1
                     self.number += 1
                     print 'Connection address:', incomingAddr
-            for conn in conns:
-                self.send(conn, Code.START)
+            self.contacts.notifyAll(Code.START)
             break
 
-        self.initiateGame(conns, addrList)
+        self.initiateGame(addrList)
 
-    def send(self, conn, command, data = None):
-        """ Sends a message to the specified connection address"""
-        conn.send(Message(command = command, data = data).encode())
-
-    def initiateGame(self, conns, addrList):
+    def initiateGame(self, addrList):
         threads = []
         game = Game()
 
-        for i in range(len(conns)):
+        for i in range(len(self.contacts)):
             threads.append(threading.Thread(target=self.handle_client,
-                                            args=(addrList[i], conns[i], game.map)))
+                                            args=(addrList[i], i, game.map)))
             threads[-1].start()
 
         for thread in threads:
