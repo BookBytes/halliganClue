@@ -13,6 +13,7 @@ class Card(object):
         self.name = name
         self.image = card_img
 
+
 class Deck(object):
     def __init__(self, characters, items, places):
         char = random.choice(characters)
@@ -27,7 +28,7 @@ class Deck(object):
 
     def dealPlayer(self, numPlayers):
         if len(self.userCards) == 0:
-            return [] # all cards dealt
+            return []  # all cards dealt
         # Reference on range
         # https://stackoverflow.com/questions/3685974/
         # iterate-a-certain-number-of-times-without-storing-the-iteration-number-anywhere
@@ -56,7 +57,7 @@ class Element(object):
     def getLocation(self):
         return self.location
 
-    def setLocation(self, x, y): # take map?
+    def setLocation(self, x, y):  # TODO: take map?
         self.location = [x, y]
 
 
@@ -90,19 +91,40 @@ class Weapon(object):
 
 
 class Game(object):
-    def __init__(self):
-        characters = [] # TODO
+    def __init__(self, addrList):
+        if len(addrList) < 2 or len(addrList) > 6:
+            return
 
-        charOrder = ['Megan "The Captain" Monroe',
-                     'Ming “The Hacker” Chow',
+        # Characters listed in character player order
+        charNames = ['Megan "The Captain" Monroe',
+                     'Ming "The Hacker" Chow',
                      'Mark "The Shark" Sheldon',
-                     'Megan “The Administrator” Monaghan',
-                     'Norman “The Linguist” Ramsey',
-                     'Donna “The Coordinator” Cirelli']
+                     'Megan "The Administrator" Monaghan',
+                     'Norman "The Linguist" Ramsey',
+                     'Donna "The Coordinator" Cirelli']
 
-        items = ['NP = P proof', '105 Textbook',
-                 'SQL Injection', 'Binary Bomb', 'Dead squirrel',
-                 'Dry white board marker']
+        self.characters = {}
+        self.characters[charNames[0]] = Suspect(26, 0,   charNames[0], "C")
+        self.characters[charNames[1]] = Suspect(46, 0,   charNames[1], "H")
+        self.characters[charNames[2]] = Suspect(70, 19,  charNames[2], "S")
+        self.characters[charNames[3]] = Suspect(2,  27,  charNames[3], "A")
+        self.characters[charNames[4]] = Suspect(70, 27,  charNames[4], "L")
+        self.characters[charNames[5]] = Suspect(22, 35,  charNames[5], "c")
+
+        chars = charNames  # deep copy
+        # mapping of ip addresses to character names; 
+        # use this to index into the "characters," aka character objects
+        # NOTE: currently character assignment is random.
+        # It works for any number of players between 2 and 6 (check above).
+        self.charMapping = []
+        for addr in addrList:
+            char = random.choice(chars)
+            self.charMapping[addr] = char
+            chars.pop(char)
+
+        self.items = ['NP = P proof', '105 Textbook',
+                      'SQL Injection', 'Binary Bomb', 'Dead squirrel',
+                      'Dry white board marker']
 
         places = ['Collab Room', 'Entryway', 'EECS Office',
                   'Kitchen', 'Fishbowl', 'The Computer Lab',
@@ -119,7 +141,7 @@ class Game(object):
 
         self.weapons = []
 
-        self.deck = Deck(charOrder[:], items[:], places[:]) #Ensure copy is passed
+        self.deck = Deck(charNames[:], self.items[:], places[:])  # Ensure copy is passed
         self.map = "+=======================================================================+\n" \
                    "|                   |   | C |               | H |   |   |               |\n" \
                    "|                   ---------               -------------               |\n" \
@@ -158,7 +180,7 @@ class Game(object):
                    "|                   | c |   |                   |   |   |               |\n" \
                    "+=======================================================================+"
 
-        for item in items:
+        for item in self.items:
             room = random.choice(places)
             x, y = roomLocations[room]
             weaponSym = random.choice(weaponSyms)

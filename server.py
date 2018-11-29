@@ -48,7 +48,7 @@ class Server(object):
 
     def initiateGame(self, conns, addrList):
         threads = []
-        game = Game()
+        game = Game(addrList)
 
         for i in range(len(conns)):
             threads.append(threading.Thread(target=self.handle_client,
