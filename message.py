@@ -15,17 +15,19 @@ def receive_next(conn):
 
 class Code(Enum):
     """ Valid message commands """
-    MSG = 1   # Basic text updates
+    MSG = 1      # Basic text updates
     START = 2
     LEAVE = 3
-    DATA = 4  # This will probably need to be made more specific/map seperated
+    DATA = 4     # This will probably need to be made more specific/map seperated
     CHAR_REQ = 5 # Request a character, [name, char_code]
     CHAR_REJ = 6 # Rejects a character request [[available char_codes]]
     CHAR_ACC = 7 # Notifies of accepted character request [name, char_code]
     WALK_REQ = 8 # Walk request [char_code, move_str]
     WALK_REJ = 9 # Walk rejections [reason]
     MOVE = 10    # Move notification [elem_code, (starting), (ending)]
-    DECK = 11    # [[three elem_codes]]
+    CARDS = 11   # [[three elem_codes]]
+    ACCUSE = 12  # Accusation [name, [char_code, weapon_code, place_code]]
+
 
 
 class Message:
