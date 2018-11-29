@@ -14,6 +14,11 @@ class Contacts:
         msg = Message(command = command, data = data)
         self.contacts[id].send(msg.encode())
 
+    def notifyNext(self, id, command, data = None):
+        """ Notifies next connection in order """
+        next = (id + 1) % len(self)
+        self.notify(next, command, data)
+
     def notifyAll(self, command, data = None):
         """ Notifies all connections """
         for id in self.contacts:
