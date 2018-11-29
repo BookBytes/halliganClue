@@ -8,6 +8,7 @@ SIZE_DIGITS = 4 # Length of the string representing the message size
 
 def receive_next(conn):
     """ Receives next set of data based on prepended size information """
+    """ Might need to try/catch this for closing socket"""
     msg_size = conn.recv(SIZE_DIGITS)
     raw_msg = conn.recv(int(msg_size))
     return raw_msg
@@ -22,7 +23,7 @@ class Code(Enum):
     CHAR_REQ = 5 # Request a character, [name, char_code]
     CHAR_REJ = 6 # Rejects a character request [[available char_codes]]
     CHAR_ACC = 7 # Notifies of accepted character request [name, char_code]
-    WALK_REQ = 8 # Walk request [char_code, move_str]
+    WALK_REQ = 8 # Walk request [char_code, dice_sum, move_str]
     WALK_REJ = 9 # Walk rejections [reason]
     MOVE = 10    # Move notification [elem_code, (starting), (ending)]
     CARDS = 11   # [[three elem_codes]]

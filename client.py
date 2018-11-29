@@ -41,6 +41,7 @@ class Client(object):
 			data = msg.get_data()
 			print data
 			print "------"
+
 		self.name = raw_input("Nice.")
 
 
