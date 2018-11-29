@@ -15,9 +15,9 @@ class Server(object):
         self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     def handle_client(self, addr, conn, data):
-        # TODO - send character data
-        # send map
-        conn.send(data)
+        # send character name followed by the map
+        conn.send("You're playing as " + data[0] + ".")
+        conn.send(data[1])
         while 1:
             data = conn.recv(20)
             if not data:
@@ -52,7 +52,9 @@ class Server(object):
 
         for i in range(len(conns)):
             threads.append(threading.Thread(target=self.handle_client,
-                                            args=(addrList[i], conns[i], game.map)))
+                                            args=(addrList[i],
+                                                  conns[i],
+                                                  [game.getChar(addrList[i]), game.map])))
             threads[-1].start()
 
         for thread in threads:

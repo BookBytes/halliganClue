@@ -188,3 +188,6 @@ class Game(object):
             self.map = self.map[0:((y*77) + x)] + weaponSym + self.map[((y*77) + x + 1):]  # move this to element class
             places.remove(room)
             weaponSyms.remove(weaponSym)
+
+    def getChar(self, addr):
+        return self.charMapping[addr]
