@@ -9,6 +9,11 @@ Run ./test in a terminal window with forwarding enabled to automatically create 
 raw_input blocks receiving - use curses to fix this?
 Just using the name thing to test notifications.
 
+Move characters, weapons into enums
+Map into its own file
+
+Need character mappings for all elements
+
 
 ### An ideal list of messages
 ##### Client <-> Server
