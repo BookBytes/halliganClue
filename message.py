@@ -21,14 +21,13 @@ class Code(Enum):
     LEAVE = 3
     DATA = 4     # This will probably need to be made more specific/map seperated
     CHAR_REQ = 5 # Request a character, [name, char_code]
-    CHAR_REJ = 6 # Rejects a character request [[available char_codes]]
+    CHAR_DENY = 6 # Rejects a character request [[available char_codes], reason]
     CHAR_ACC = 7 # Notifies of accepted character request [name, char_code]
     WALK_REQ = 8 # Walk request [char_code, dice_sum, move_str]
-    WALK_REJ = 9 # Walk rejections [reason]
+    WALK_DENY = 9 # Walk rejections [reason]
     MOVE = 10    # Move notification [elem_code, (starting), (ending)]
     CARDS = 11   # [[three elem_codes]]
     ACCUSE = 12  # Accusation [name, [char_code, weapon_code, place_code]]
-
 
 
 class Message:
@@ -53,15 +52,7 @@ class Message:
         str_size = "0" * (SIZE_DIGITS - len(str(size))) + str(size)
         return str_size + msg
 
-    def toString(self):
-        """ Pretty print message)"""
+    def pretty(self):
+        """ Pretty print message"""
         # TODO: actually format nice strings
-        return self.encode()
-
-    def get_command(self):
-        """ Get Code instance of command """
-        return self.command
-
-    def get_data(self):
-        """ Get body data """
-        return self.data
+        return str(self.command) + " " + str(self.data)

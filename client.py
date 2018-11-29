@@ -27,26 +27,43 @@ class Client(object):
 		#intera
 	def run(self):
 		self.s.connect(('127.0.0.1', 5005))
+
 		self.wait_to_start()
 
 	def wait_to_start(self):
 		self.name = raw_input("What's your name:")
 		self.send(Code.DATA, self.name)
+		msg = None
 
-		while 1:
+		# Might want to drop this out or have a count down or something?
+		while msg and msg.command != Code.START:
 			raw_msg = receive_next(self.s)
 			msg = Message(str = raw_msg)
 			print "Received:"
-			print msg.get_command()
-			data = msg.get_data()
+			print msg.command
+			data = msg.data
 			print data
 			print "------"
 
-		self.name = raw_input("Nice.")
-
+		self.start_game()
 
 	def start_game(self):
-		pass
+		while True:
+			raw_msg = receive_next(self.s)
+			msg = Message(str = raw_msg)
+			if msg.command == Code.CHAR_DENY:
+				print "Available characters", msg.data
+				character = raw_input("What character:")
+				self.send(Code.CHAR_REQ, [self.name, character])
+			elif msg.command == Code.CHAR_ACC:
+				if msg.data[0] == self.name:
+					self.character = character
+			print "Received:"
+			print msg.command
+			data = msg.data
+			print data
+			print "------"
+
 
 	# Send message to server
 	def send(self, command, data = None):

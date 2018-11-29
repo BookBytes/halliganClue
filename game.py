@@ -6,6 +6,7 @@
 
 import random
 import itertools
+import threading
 from game_data import SuspectList, WeaponsList, PlacesList, MAP, LOCATIONS
 
 
@@ -103,14 +104,14 @@ class Weapon(object):
 
 class Game(object):
     def __init__(self):
-        characters = [] # TODO
+        self.lock = threading.Lock()
 
-        suspects = list(SuspectList)
+        self.suspects = list(SuspectList)
+
         items = list(WeaponsList)
         places = list(PlacesList)
 
         # for porting/stepping into a room
-
         self.rooms = LOCATIONS  # deep copy
 
         weaponSyms = ["~", "!", "#", "$", "%", "&"]  # to be replaced by images for GUI
@@ -128,3 +129,23 @@ class Game(object):
             self.map = self.map[0:((y*77) + x)] + weaponSym + self.map[((y*77) + x + 1):]  # move this to element class
             places.remove(room)
             weaponSyms.remove(weaponSym)
+
+    def claim_suspect(self, suspect_code):
+        """ Requests a given suspect via suspect code and removes it from list
+            if it is still available. Returns true if request is successful,
+            false otherwise. """
+        if not SuspectList.has(suspect_code):
+            return (False, "That is not a valid suspect code, check your spelling.")
+
+        suspect = SuspectList[suspect_code]
+        with self.lock:
+            if suspect in self.suspects:
+                self.suspects.remove(suspect)
+                return (True, None)
+            else:
+                return (False, "That character is already chosen")
+
+    def available_suspects(self):
+        """ Returns a json serializble suspect list """
+        with self.lock:
+            return [repr(x) for x in self.suspects]

@@ -7,6 +7,7 @@ from message import Message, Code, receive_next
 import math
 from contacts import Contacts
 
+
 class Server(object):
     def __init__(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -17,19 +18,29 @@ class Server(object):
         self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 
-    def handle_client(self, addr, id_self, data):
+    def handle_client(self, addr, id_self, game):
         conn_self = self.contacts[id_self]
 
         # TODO - send character data
         # send map
-        self.contacts.notify(id_self, Code.DATA, data)
+        #self.contacts.notify(id_self, Code.DATA, data)
 
         while 1:
-            data = receive_next( conn_self )
-            if not data:
-                break
-            print "received data:", data
-            self.contacts.notifyAll(Code.DATA, data)
+            raw_msg = receive_next( conn_self )
+            msg = Message(str = raw_msg)
+            print "received data:", msg.command, msg.data
+            if msg.command == Code.CHAR_REQ:
+                name, char_code = msg.data
+                success, reason = game.claim_suspect(char_code)
+                if success:
+                    self.contacts.notifyAll(Code.CHAR_ACC, [name, char_code])
+                else:
+                    self.contacts.notify(   id_self,
+                                            Code.CHAR_DENY,
+                                            [ game.available_suspects(),
+                                             reason ])
+            else:
+                self.contacts.notifyAll(Code.DATA, msg.data)
 
         conn_self.close()
 
@@ -47,7 +58,6 @@ class Server(object):
                     addrToGame[incomingAddr] = 1
                     self.number += 1
                     print 'Connection address:', incomingAddr
-            self.contacts.notifyAll(Code.START)
             break
 
         self.initiateGame(addrList)
@@ -56,9 +66,14 @@ class Server(object):
         threads = []
         game = Game()
 
+        self.contacts.notifyAll(Code.START)
+        self.contacts.notifyAll(Code.CHAR_DENY, 
+                                [game.available_suspects(),
+                                "Please select a character"])
+
         for i in range(len(self.contacts)):
             threads.append(threading.Thread(target=self.handle_client,
-                                            args=(addrList[i], i, game.map)))
+                                            args=(addrList[i], i, game)))
             threads[-1].start()
 
         for thread in threads:

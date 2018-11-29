@@ -1,6 +1,11 @@
 from enum import Enum
 
-class SuspectList(Enum):
+class AugEnum(Enum):
+    @classmethod
+    def has(self, value):
+        return any(value == item.name for item in self)
+
+class SuspectList(AugEnum):
     MEGAN_C = 'Megan "The Captain" Monroe'
     MING = 'Ming "The Hacker" Chow'
     MARK = 'Mark "The Shark" Sheldon'
@@ -9,12 +14,12 @@ class SuspectList(Enum):
     DONNA = 'Donna "The Coordinator" Cirelli'
 
 class WeaponsList(Enum):
-    r = 'Dry white board marker'
-    t = '105 Textbook'
-    y = 'Binary Bomb'
-    u = 'Dead squirrel'
-    i = 'SQL Injection'
-    o = 'NP = P proof'
+    MARKER = 'Dry white board marker'
+    BOOK = '105 Textbook'
+    BOMB = 'Binary Bomb'
+    SQUIRREL = 'Dead squirrel'
+    SQL = 'SQL Injection'
+    PROOF = 'NP = P proof'
 
 class PlacesList(Enum):
     COLLAB = 'Collab Room'
@@ -27,6 +32,10 @@ class PlacesList(Enum):
     ADMIN = 'Admin Office'
     EXTEN = 'Extension'
 
+class Actions(Enum):
+    MOVE = 1
+    SUGGEST = 2
+    ACCUSE = 2
 
 LOCATIONS = {PlacesList.COLLAB: (4, 9), PlacesList.ENTRY: (4, 35), PlacesList.EECS: (5, 63),
              PlacesList.KITCHEN: (18, 9), PlacesList.BOWL: (14, 63), PlacesList.LAB: (22, 63),
@@ -34,7 +43,8 @@ LOCATIONS = {PlacesList.COLLAB: (4, 9), PlacesList.ENTRY: (4, 35), PlacesList.EE
 
 KEY_MAP = {}
 
-#SYMBOL_MAP = 
+#SYMBOL_MAP =
+
 
 
 MAP = "+=======================================================================+\n" \
