@@ -21,36 +21,23 @@ class Server(object):
 
 
     def handleClient(self, addr, idSelf, game):
+        self.gameInProgress = True
         connSelf = self.contacts[idSelf]
 
         # TODO - send character data
         # send map
         #self.contacts.notify(idSelf, Code.DATA, data)
+        handleMsgCode = {   Code.CHAR_REQ:  self.charRequest,
+                            Code.EXIT:      self.leave}
 
-        while 1:
+        while self.gameInProgress:
             msg = receiveNextMsg( connSelf )
             print "received data:", msg.command, msg.data
-            if msg.command == Code.CHAR_REQ:
-                name, id, charKey = msg.data
-                char, reason = game.claimSuspect(charKey)
-                if char:
-                    self.contacts.notifyAll(Code.CHAR_ACC,
-                                            [name, id, char.name, char.value])
-                else:
-                    self.contacts.notify(   idSelf,
-                                            Code.CHAR_DENY,
-                                            [ game.availableSuspects(),
-                                             reason ])
-            elif msg.command == Code.EXIT:
-                self.contacts.notifyAll(Code.EXIT)
-                #self.s.shutdown(socket.SHUT_RDWR) # -> Bad file descriptor
-                self.s.close()
-                break
-
+            if msg.command in handleMsgCode:
+                handleMsgCode[msg.command](game, msg.data)
             else:
                 self.contacts.notifyAll(Code.DATA, msg.data)
 
-        connSelf.close()
 
     def run(self):
         addrToGame = {}
@@ -86,3 +73,30 @@ class Server(object):
 
         for thread in threads:
             thread.join()
+
+##############################################################################
+### Code for handling each message code
+### Arguments
+###		self
+###     game
+###		data - data from message packet
+##############################################################################
+
+    def leave(self, _game , _data):
+        self.contacts.notifyAll(Code.EXIT)
+        #self.s.shutdown(socket.SHUT_RDWR) # -> Bad file descriptor
+        self.s.close()
+        exit()
+
+    def charRequest(self, game, data):
+        name, id, charKey = data
+        char, reason = game.claimSuspect(charKey)
+        if char:
+            self.contacts.notifyAll(Code.CHAR_ACC,
+                                    [name, id, char.name, char.value])
+        else:
+            self.contacts.notify(   idSelf,
+                                    Code.CHAR_DENY,
+                                    [ game.availableSuspects(),
+                                     reason ])
+##############################################################################
