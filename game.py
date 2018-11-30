@@ -6,7 +6,15 @@
 
 import random
 import itertools
+import threading
+from game_data import SuspectList, WeaponsList, PlacesList, MAP, LOCATIONS
 
+
+def locked(func):
+    def wrapper(*args):
+        with args[0].lock:
+            return func(*args)
+    return wrapper
 
 class Card(object):
     def __init__(self, name, card_img):
@@ -15,16 +23,25 @@ class Card(object):
 
 
 class Deck(object):
-    def __init__(self, characters, items, places):
-        char = random.choice(characters)
-        item = random.choice(items)
-        place = random.choice(places)
-        self.solution = [char, item, place]
-        characters.remove(char)
-        items.remove(item)
-        places.remove(place)
-        first = itertools.chain(characters, items)
-        self.userCards = itertools.chain(first, places)
+    def __init__(self):
+        suspects = list(SuspectList)
+        weapons = list(WeaponsList)
+        places = list(PlacesList)
+
+        char = self.draw(suspects)
+        weapon = self.draw(weapons)
+        place = self.draw(places)
+
+        self.solution = [char, weapon, place]
+
+        self.userCards = suspects + weapons + places
+
+    def draw(self, deck):
+        """ Draws a random card from the given deck.
+            Card is removed and returned """
+        card = random.choice(deck)
+        deck.remove(card)
+        return card
 
     def dealPlayer(self, numPlayers):
         if len(self.userCards) == 0:
@@ -34,25 +51,26 @@ class Deck(object):
         # iterate-a-certain-number-of-times-without-storing-the-iteration-number-anywhere
         hand = []
         for _i in range(18/numPlayers):
-            card = random.choice(self.userCards)
+            card = self.draw(self.userCards)
             hand.append(card)
-            self.userCards.remove(card)
         return hand
 
     def checkSolution(self, guess):
         # guess is a tuple structured as follows: (char, weapon, room).
         # Unlike the physical board game the user does not need
         # to see the cards to check so they can guess again.
-        return guess[0] == self.solution[0] and \
-               guess[1] == self.solution[1] and \
-               guess[2] == self.solution[2]
+
+        #       guess[0] == self.solution[0] and \
+        #       guess[1] == self.solution[1] and \
+        #       guess[2] == self.solution[2]
+
+        return self.solution == guess
 
 
 class Element(object):
-    def __init__(self, x, y, name, img):
+    def __init__(self, x, y, symbol):
         self.location = [x, y]
-        self.name = name
-        self.image = img
+        self.sym = symbol
 
     def getLocation(self):
         return self.location
@@ -62,8 +80,8 @@ class Element(object):
 
 
 class Suspect(object):
-    def __init__(self, x, y, name, img):
-        self.element = Element(x, y, name, img)
+    def __init__(self, x, y, sym):
+        self.element = Element(x, y, sym)
 
     def walk(self, directions):
         currX, currY = self.element.getLocation()
@@ -86,12 +104,17 @@ class Suspect(object):
 
 
 class Weapon(object):
-    def __init__(self, x, y, name, img):
-        self.element = Element(x, y, name, img)
+    def __init__(self, x, y, sym):
+        self.element = Element(x, y, sym)
 
 
 class Game(object):
     def __init__(self, addrList):
+        # FIX ME
+        self.lock = threading.Lock()
+
+        self.suspects = list(SuspectList)
+
         if len(addrList) < 2 or len(addrList) > 6:
             return
 
@@ -104,90 +127,68 @@ class Game(object):
                      'Donna "The Coordinator" Cirelli']
 
         self.characters = {}
-        self.characters[charNames[0]] = Suspect(26, 0,   charNames[0], "C")
-        self.characters[charNames[1]] = Suspect(46, 0,   charNames[1], "H")
-        self.characters[charNames[2]] = Suspect(70, 19,  charNames[2], "S")
-        self.characters[charNames[3]] = Suspect(2,  27,  charNames[3], "A")
-        self.characters[charNames[4]] = Suspect(70, 27,  charNames[4], "L")
-        self.characters[charNames[5]] = Suspect(22, 35,  charNames[5], "c")
+        self.characters[SuspectList.MEGAN_C] = Suspect(26, 0, "C")
+        self.characters[SuspectList.MING] = Suspect(46, 0, "H")
+        self.characters[SuspectList.MARK] = Suspect(70, 19, "S")
+        self.characters[SuspectList.MEGAN_A] = Suspect(2,  27, "A")
+        self.characters[SuspectList.NORMAN] = Suspect(70, 27, "L")
+        self.characters[SuspectList.DONNA] = Suspect(22, 35, "c")
 
-        chars = charNames  # deep copy
-        # mapping of ip addresses to character names; 
+        #chars = charNames  # deep copy
+        # mapping of ip addresses to character names;
         # use this to index into the "characters," aka character objects
         # NOTE: currently character assignment is random.
         # It works for any number of players between 2 and 6 (check above).
-        self.charMapping = []
-        for addr in addrList:
-            char = random.choice(chars)
-            self.charMapping[addr] = char
-            chars.pop(char)
+        #self.charMapping = []
+        # for addr in addrList:
+        #     char = random.choice(chars)
+        #     self.charMapping[addr] = char
+        #     chars.pop(char)
 
-        self.items = ['NP = P proof', '105 Textbook',
-                      'SQL Injection', 'Binary Bomb', 'Dead squirrel',
-                      'Dry white board marker']
 
-        places = ['Collab Room', 'Entryway', 'EECS Office',
-                  'Kitchen', 'Fishbowl', 'The Computer Lab',
-                  'Couches', 'Admin Office', 'Extension']
+        self.items = list(WeaponsList)
+        places = list(PlacesList)
 
         # for porting/stepping into a room
-        roomLocations = {places[0]: (4, 9), places[1]: (4, 35), places[2]: (5, 63),
-                         places[3]: (18, 9), places[4]: (14, 63), places[5]: (22, 63),
-                         places[6]: (31, 9), places[7]: (32, 37), places[8]: (32, 63)}
-
-        self.rooms = roomLocations  # deep copy
+        self.rooms = LOCATIONS  # deep copy
 
         weaponSyms = ["~", "!", "#", "$", "%", "&"]  # to be replaced by images for GUI
 
         self.weapons = []
 
-        self.deck = Deck(charNames[:], self.items[:], places[:])  # Ensure copy is passed
-        self.map = "+=======================================================================+\n" \
-                   "|                   |   | C |               | H |   |   |               |\n" \
-                   "|                   ---------               -------------               |\n" \
-                   "|    Collab Room    |   |                       |   |   |               |\n" \
-                   "|                   -----                       ---------  EECS Office  |\n" \
-                   "|                   |   >       Entryway        <   |   |               |\n" \
-                   "|------------ ^ ---------                       -------------           |\n" \
-                   "|   |   |   |   |   |   |                       |   |   |   >           |\n" \
-                   "|---------------------------- ^ --------- ^ ----------------------------|\n" \
-                   "|   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |\n" \
-                   "|-----------------------------------------------------------------------|\n" \
-                   "|   |   |   |   |   |   |   |   |   |   |   |   |   |   >               |\n" \
-                   "|--------------------------------------------------------               |\n" \
-                   "|                   |   |   |                   |   |   |   Fishbowl    |\n" \
-                   "|                   ---------    ___      ___   ---------               |\n" \
-                   "|                   <   |   |    | |      | |   |   |   |               |\n" \
-                   "|                   ---------    | |______| |   ----------------- ^ ----|\n" \
-                   "|      Kitchen      |   |   |    |  ______  |   |   |   |   |   |   |   |\n" \
-                   "|                   ---------    | |      | |   ------------------------|\n" \
-                   "|                   |   |   |    |_|      |_|   |   |   |   |   |   | S |\n" \
-                   "|                   ---------                   ------------- v --------|\n" \
-                   "|                   |   |   |                   |   |   |               |\n" \
-                   "|------------ ^ -----------------------------------------               |\n" \
-                   "|   |   |   |   |   |   |   |   |   |   |   |   |   |   >   Computer    |\n" \
-                   "|--------------------------------------------------------      Lab      |\n" \
-                   "|   |   |   |   |   |   |   |   |   |   |   |   |   |   |               |\n" \
-                   "|------------------------------------ v --------------------------------|\n" \
-                   "| A |   |   |   |   |   |   |                   |   |   |   |   |   | L |\n" \
-                   "|---------------- v ---------                   ------------------------|\n" \
-                   "|                   |   |   |                   <   |   |   |   |   |   |\n" \
-                   "|                   ---------       Admin       --------- v ------------|\n" \
-                   "|                   |   |   |       Office      |   |   |               |\n" \
-                   "|      Couches      ---------                   ---------               |\n" \
-                   "|                   |   |   |                   |   |   |   Extension   |\n" \
-                   "|                   ---------                   ---------               |\n" \
-                   "|                   | c |   |                   |   |   |               |\n" \
-                   "+=======================================================================+"
+        self.deck = Deck()
+        self.map = MAP
 
         for item in self.items:
             room = random.choice(places)
-            x, y = roomLocations[room]
+            x, y = LOCATIONS[room]
             weaponSym = random.choice(weaponSyms)
-            self.weapons.append(Weapon(x, y, item, weaponSym))
+            self.weapons.append(Weapon(x, y, weaponSym))
             self.map = self.map[0:((y*77) + x)] + weaponSym + self.map[((y*77) + x + 1):]  # move this to element class
             places.remove(room)
             weaponSyms.remove(weaponSym)
 
     def getChar(self, addr):
+        # OBS?
         return self.charMapping[addr]
+
+    @locked
+    def claim_suspect(self, suspect_code):
+        """ Requests a given suspect via suspect code and removes it from list
+            if it is still available. Returns true if request is successful,
+            false otherwise. """
+        if not SuspectList.has(suspect_code):
+            return (False, "That is not a valid suspect code, check your spelling.")
+
+        suspect = SuspectList[suspect_code]
+
+        if suspect in self.suspects:
+            self.suspects.remove(suspect)
+            return (True, None)
+        else:
+            return (False, "That character is already chosen")
+
+    @locked
+    def available_suspects(self):
+        """ Returns a json serializble suspect list """
+        return [repr(x) for x in self.suspects]

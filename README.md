@@ -5,17 +5,27 @@ A Halligan-themed Clue game
 Run ./test in a terminal window with forwarding enabled to automatically create three clients (all client objects called "c").
 
 
+## Notes
+raw_input blocks receiving - use curses to fix this?
+Just using the name thing to test notifications.
+
+Move characters, weapons into enums
+Map into its own file
+
+Need character mappings for all elements
 
 
 ### An ideal list of messages
 ##### Client <-> Server
 
-* Join ->
-    * <-  Join Notification (All)
+* Join (name)->
+    * <- Join Notification (All)
 * Character list request ->
     * <- Available Characters
 * Character request ->
     * <- Confirmation OR character list if choice taken
+    * <- Deck
+
 
 (Weapon placement stage)
 
@@ -31,4 +41,7 @@ Take turn:
 * Suggestion rebuttal or pass ->
     * <- Rebuttal info or nothing (OG player)
     * <- Rebuttal notification (all)
-    
+
+
+* leave ->
+    * <- Graceful exit (all)

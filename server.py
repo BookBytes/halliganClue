@@ -3,6 +3,9 @@
 import socket
 import threading
 from game import Game
+from message import Message, Code, receiveNextMsg
+import math
+from contacts import Contacts
 
 
 class Server(object):
@@ -16,36 +19,51 @@ class Server(object):
         # TODO: make a dictionary of connections, one sublist for each game
         self.conns = []
 
-    def handle_client(self, addr, conn, data):
-        # send character name followed by the map
-        conn.send("You're playing as " + data[0] + ".")
-        conn.send(data[1])
+
+    def handleClient(self, addr, id_self, game):
+        conn_self = self.contacts[id_self]
+
+        # TODO - send character data
+        # send map
+        #self.contacts.notify(id_self, Code.DATA, data)
+
         while 1:
-            inData = conn.recv(20)
-            if not inData:
-                break
-            print "received data:", inData
-            # TODO: act based on message format; call appropriate function
-            # conn.send("Success") # send success or failure message
-            for connection in self.conns:
-                connection.send(data[1])  # broadcast the updated board to all clients
-        conn.close()
+            msg = receiveNextMsg( conn_self )
+            print "received data:", msg.command, msg.data
+            if msg.command == Code.CHAR_REQ:
+                name, char_code = msg.data
+                success, reason = game.claim_suspect(char_code)
+                if success:
+                    self.contacts.notifyAll(Code.CHAR_ACC, [name, char_code])
+                else:
+                    self.contacts.notify(   id_self,
+                                            Code.CHAR_DENY,
+                                            [ game.available_suspects(),
+                                             reason ])
+            elif msg.command == Code.EXIT:
+                self.contacts.notifyAll(Code.EXIT)
+                #self.s.shutdown(socket.SHUT_RDWR)
+                #self.s.close()
+
+            else:
+                self.contacts.notifyAll(Code.DATA, msg.data)
+
+        conn_self.close()
 
     def run(self):
         addrToGame = {}
+        self.contacts = Contacts()
         addrList = []
 
         while 1:
             while self.number < 3:
                 incomingConn, incomingAddr = self.s.accept()
                 if incomingAddr not in addrToGame:
-                    self.conns.append(incomingConn)
+                    self.contacts.add(incomingConn)
                     addrList.append(incomingAddr)
                     addrToGame[incomingAddr] = 1
                     self.number += 1
                     print 'Connection address:', incomingAddr
-            for conn in self.conns:
-                conn.send('Game can start now!')
             break
 
         self.initiateGame(addrList)
@@ -54,11 +72,14 @@ class Server(object):
         threads = []
         game = Game(addrList)
 
-        for i in range(len(self.conns)):
-            threads.append(threading.Thread(target=self.handle_client,
-                                            args=(addrList[i],
-                                                  self.conns[i],
-                                                  [game.getChar(addrList[i]), game.map])))
+        self.contacts.notifyAll(Code.START)
+        self.contacts.notifyAll(Code.CHAR_DENY,
+                                [game.available_suspects(),
+                                "Please select a character"])
+
+        for i in range(len(self.contacts)):
+            threads.append(threading.Thread(target=self.handleClient,
+                                            args=(addrList[i], i, game)))
             threads[-1].start()
 
         for thread in threads:
