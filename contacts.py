@@ -1,4 +1,4 @@
-from message import Message
+from message import Message, Code
 
 class Contacts:
     def __init__(self):
@@ -12,6 +12,7 @@ class Contacts:
     def notify(self, id, command, data = None):
         """ Notifies the connection with the given id """
         print "sending:", id, command, data
+        if command == Code.START: data = [id]
         try:
             msg = Message(command = command, data = data)
             self.contacts[id].send(msg.encode())

@@ -20,36 +20,37 @@ class Server(object):
         self.conns = []
 
 
-    def handleClient(self, addr, id_self, game):
-        conn_self = self.contacts[id_self]
+    def handleClient(self, addr, idSelf, game):
+        connSelf = self.contacts[idSelf]
 
         # TODO - send character data
         # send map
-        #self.contacts.notify(id_self, Code.DATA, data)
+        #self.contacts.notify(idSelf, Code.DATA, data)
 
         while 1:
-            msg = receiveNextMsg( conn_self )
+            msg = receiveNextMsg( connSelf )
             print "received data:", msg.command, msg.data
             if msg.command == Code.CHAR_REQ:
-                name, char_code = msg.data
-                success, reason = game.claim_suspect(char_code)
-                if success:
-                    self.contacts.notifyAll(Code.CHAR_ACC, [name, char_code])
+                name, id, charKey = msg.data
+                char, reason = game.claimSuspect(charKey)
+                if char:
+                    self.contacts.notifyAll(Code.CHAR_ACC,
+                                            [name, id, char.name, char.value])
                 else:
-                    self.contacts.notify(   id_self,
+                    self.contacts.notify(   idSelf,
                                             Code.CHAR_DENY,
-                                            [ game.available_suspects(),
+                                            [ game.availableSuspects(),
                                              reason ])
             elif msg.command == Code.EXIT:
                 self.contacts.notifyAll(Code.EXIT)
-                #self.s.shutdown(socket.SHUT_RDWR) # -> Bad file descriptor 
+                #self.s.shutdown(socket.SHUT_RDWR) # -> Bad file descriptor
                 self.s.close()
                 break
 
             else:
                 self.contacts.notifyAll(Code.DATA, msg.data)
 
-        conn_self.close()
+        connSelf.close()
 
     def run(self):
         addrToGame = {}
@@ -75,7 +76,7 @@ class Server(object):
 
         self.contacts.notifyAll(Code.START)
         self.contacts.notifyAll(Code.CHAR_DENY,
-                                [game.available_suspects(),
+                                [game.availableSuspects(),
                                 "Please select a character"])
 
         for i in range(len(self.contacts)):

@@ -41,10 +41,15 @@ LOCATIONS = {PlacesList.COLLAB: (4, 9), PlacesList.ENTRY: (4, 35), PlacesList.EE
              PlacesList.KITCHEN: (18, 9), PlacesList.BOWL: (14, 63), PlacesList.LAB: (22, 63),
              PlacesList.COUCHES: (31, 9), PlacesList.ADMIN: (32, 37), PlacesList.EXTEN: (32, 63)}
 
-KEY_MAP = {}
 
-#SYMBOL_MAP =
 
+# The inverse key_map exists as mapToSym in the game object
+KEY_MAP = { "C" : SuspectList.MEGAN_C,
+            "H" : SuspectList.MING,
+            "S" : SuspectList.MARK,
+            "A" : SuspectList.MEGAN_A,
+            "L" : SuspectList.NORMAN,
+            "c" : SuspectList.DONNA }
 
 
 MAP = "+=======================================================================+\n" \

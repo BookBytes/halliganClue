@@ -7,7 +7,8 @@
 import random
 import itertools
 import threading
-from game_data import SuspectList, WeaponsList, PlacesList, MAP, LOCATIONS
+from game_data import SuspectList, WeaponsList, PlacesList
+from game_data import MAP, LOCATIONS, KEY_MAP
 
 
 def locked(func):
@@ -15,12 +16,6 @@ def locked(func):
         with args[0].lock:
             return func(*args)
     return wrapper
-
-class Card(object):
-    def __init__(self, name, card_img):
-        self.name = name
-        self.image = card_img
-
 
 class Deck(object):
     def __init__(self):
@@ -110,6 +105,7 @@ class Weapon(object):
 
 class Game(object):
     def __init__(self, addrList):
+
         # FIX ME
         self.lock = threading.Lock()
 
@@ -127,12 +123,21 @@ class Game(object):
                      'Donna "The Coordinator" Cirelli']
 
         self.characters = {}
-        self.characters[SuspectList.MEGAN_C] = Suspect(26, 0, "C")
-        self.characters[SuspectList.MING] = Suspect(46, 0, "H")
-        self.characters[SuspectList.MARK] = Suspect(70, 19, "S")
-        self.characters[SuspectList.MEGAN_A] = Suspect(2,  27, "A")
-        self.characters[SuspectList.NORMAN] = Suspect(70, 27, "L")
-        self.characters[SuspectList.DONNA] = Suspect(22, 35, "c")
+
+        self.mapToSym =  {char: key for key, char in KEY_MAP.iteritems()}
+
+        self.characters[SuspectList.MEGAN_C] = Suspect(26, 0,
+                                            self.mapToSym[SuspectList.MEGAN_C])
+        self.characters[SuspectList.MING] = Suspect(46, 0,
+                                            self.mapToSym[SuspectList.MING])
+        self.characters[SuspectList.MARK] = Suspect(70, 19,
+                                            self.mapToSym[SuspectList.MARK])
+        self.characters[SuspectList.MEGAN_A] = Suspect(2,  27,
+                                            self.mapToSym[SuspectList.MEGAN_A])
+        self.characters[SuspectList.NORMAN] = Suspect(70, 27,
+                                            self.mapToSym[SuspectList.NORMAN])
+        self.characters[SuspectList.DONNA] = Suspect(22, 35,
+                                            self.mapToSym[SuspectList.DONNA])
 
         #chars = charNames  # deep copy
         # mapping of ip addresses to character names;
@@ -173,22 +178,23 @@ class Game(object):
         return self.charMapping[addr]
 
     @locked
-    def claim_suspect(self, suspect_code):
+    def claimSuspect(self, suspectKey):
         """ Requests a given suspect via suspect code and removes it from list
-            if it is still available. Returns true if request is successful,
-            false otherwise. """
-        if not SuspectList.has(suspect_code):
-            return (False, "That is not a valid suspect code, check your spelling.")
+            if it is still available. Returns character if request is successful,
+            false otherwise. Returns reason if failure"""
 
-        suspect = SuspectList[suspect_code]
+        if (suspectKey not in KEY_MAP) and not SuspectList.has(KEY_MAP[suspectKey]):
+                return (False, "That is not a valid suspect code, try again.")
+
+        suspect = KEY_MAP[suspectKey]
 
         if suspect in self.suspects:
             self.suspects.remove(suspect)
-            return (True, None)
+            return (suspect, None)
         else:
             return (False, "That character is already chosen")
 
     @locked
-    def available_suspects(self):
+    def availableSuspects(self):
         """ Returns a json serializble suspect list """
-        return [repr(x) for x in self.suspects]
+        return [(self.mapToSym[x], x.value) for x in self.suspects]
