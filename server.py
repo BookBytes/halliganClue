@@ -42,8 +42,9 @@ class Server(object):
                                              reason ])
             elif msg.command == Code.EXIT:
                 self.contacts.notifyAll(Code.EXIT)
-                #self.s.shutdown(socket.SHUT_RDWR)
-                #self.s.close()
+                #self.s.shutdown(socket.SHUT_RDWR) # -> Bad file descriptor 
+                self.s.close()
+                break
 
             else:
                 self.contacts.notifyAll(Code.DATA, msg.data)

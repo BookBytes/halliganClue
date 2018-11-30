@@ -12,8 +12,11 @@ class Contacts:
     def notify(self, id, command, data = None):
         """ Notifies the connection with the given id """
         print "sending:", id, command, data
-        msg = Message(command = command, data = data)
-        self.contacts[id].send(msg.encode())
+        try:
+            msg = Message(command = command, data = data)
+            self.contacts[id].send(msg.encode())
+        except:
+            print "msg failed"
 
     def notifyNext(self, id, command, data = None):
         """ Notifies next connection in order """

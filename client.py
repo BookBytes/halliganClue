@@ -57,9 +57,10 @@ class Client(object):
 				if msg.data[0] == self.name:
 					self.character = character
 			elif msg.command == Code.EXIT:
-				#self.s.shutdown(socket.SHUT_RDWR)
-				#self.s.close()
-				pass
+				print "Something went wrong, exiting game."
+				self.s.shutdown(socket.SHUT_RDWR)
+				self.s.close()
+				break
 			print "Received:"
 			print msg.command
 			data = msg.data
