@@ -10,6 +10,12 @@ import threading
 from game_data import SuspectList, WeaponsList, PlacesList, MAP, LOCATIONS
 
 
+def locked(func):
+    def wrapper(*args):
+        with args[0].lock:
+            return func(*args)
+    return wrapper
+
 class Card(object):
     def __init__(self, name, card_img):
         self.name = name
@@ -130,6 +136,8 @@ class Game(object):
             places.remove(room)
             weaponSyms.remove(weaponSym)
 
+
+    @locked
     def claim_suspect(self, suspect_code):
         """ Requests a given suspect via suspect code and removes it from list
             if it is still available. Returns true if request is successful,
@@ -138,14 +146,14 @@ class Game(object):
             return (False, "That is not a valid suspect code, check your spelling.")
 
         suspect = SuspectList[suspect_code]
-        with self.lock:
-            if suspect in self.suspects:
-                self.suspects.remove(suspect)
-                return (True, None)
-            else:
-                return (False, "That character is already chosen")
+        
+        if suspect in self.suspects:
+            self.suspects.remove(suspect)
+            return (True, None)
+        else:
+            return (False, "That character is already chosen")
 
+    @locked
     def available_suspects(self):
         """ Returns a json serializble suspect list """
-        with self.lock:
-            return [repr(x) for x in self.suspects]
+        return [repr(x) for x in self.suspects]

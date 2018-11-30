@@ -13,7 +13,7 @@ class SuspectList(AugEnum):
     NORMAN = 'Norman "The Linguist" Ramsey'
     DONNA = 'Donna "The Coordinator" Cirelli'
 
-class WeaponsList(Enum):
+class WeaponsList(AugEnum):
     MARKER = 'Dry white board marker'
     BOOK = '105 Textbook'
     BOMB = 'Binary Bomb'
@@ -21,7 +21,7 @@ class WeaponsList(Enum):
     SQL = 'SQL Injection'
     PROOF = 'NP = P proof'
 
-class PlacesList(Enum):
+class PlacesList(AugEnum):
     COLLAB = 'Collab Room'
     ENTRY = 'Entryway'
     EECS = 'EECS Office'
