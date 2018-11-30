@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import socket
 import threading
+from message import Message
 # The following file is client_server model.
 # How to run my program:
 # Open different tabs in terminal, one terminal can run server code
@@ -38,11 +39,14 @@ class Client(object):
 		print "received data:", data
 	# Leave the room and notify the server
 	def leave(self):
-		self.send(self.character + " leave the room")
+		leave = Message(self.character + " leave the room", "")
+		self.send(leave)
 		self.s.close()
 	# Request the element
 	def request_element(self, element):
-		self.send(self.character + " request " + element)
+		send = Message(self.character + " request " + element, "")
+		self.send(send)
 	# Request map from the server
 	def request_map(self):
-		self.send(self.character + " request map")
+		send = Message(self.character + " request map", "")
+		self.send(send)
