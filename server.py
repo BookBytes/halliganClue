@@ -95,7 +95,7 @@ class Server(object):
             self.contacts.notifyAll(Code.CHAR_ACC,
                                     [name, id, char.name, char.value])
         else:
-            self.contacts.notify(   idSelf,
+            self.contacts.notify(   id,
                                     Code.CHAR_DENY,
                                     [ game.availableSuspects(),
                                      reason ])
