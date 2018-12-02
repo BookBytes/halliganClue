@@ -23,7 +23,7 @@ class Code(Enum):
     MSG = 1      # Basic text updates
     START = 2    # Send with no data, contacts will append id
     EXIT = 3
-    DATA = 4     # This will probably need to be made more specific/map seperated
+    DATA = 4     # This is for misc. data BESIDES map
     CHAR_REQ = 5 # Request a character, [name, id, charKey]
     CHAR_DENY = 6 # Rejects a character request [[available charCodes], reason]
     CHAR_ACC = 7 # Notifies of accepted character request [name, id, charCode, charName]
@@ -32,6 +32,7 @@ class Code(Enum):
     MOVE = 10    # Move notification [elemCode, (starting), (ending)]
     CARDS = 11   # [[three elemCodes]]
     ACCUSE = 12  # Accusation [name, [charCode, weaponCode, placeCode]]
+    MAP = 13     # Sends the board game "map"
 
 
 class Message:
@@ -79,14 +80,19 @@ def charDeny(data):
         lines.append('{: <35} ({})'.format(suspect, char))
     return '\n'.join(lines)
 
+### Return Types
+# Simple strings
 basicStrings = {
                 Code.EXIT:      'Something went wrong, exiting game.'
-                }
+               }
 
+# Strings with embedded data
 formatStrs = {  Code.START:     'Your id is {0}',
-                Code.CHAR_ACC:  '{0} (Player {1}) has selected {3}'
+                Code.CHAR_ACC:  '{0} (Player {1}) has selected {3}',
+                Code.MAP:       '\n{0}\n'
              }
 
+# Functions
 formatFuncs = {
                 Code.CHAR_DENY: charDeny
-            }
+              }

@@ -6,6 +6,7 @@ from game import Game
 from message import Message, Code, receiveNextMsg
 import math
 from contacts import Contacts
+from game_data import KEY_MAP, MAP
 
 
 class Server(object):
@@ -19,21 +20,23 @@ class Server(object):
         # TODO: make a dictionary of connections, one sublist for each game
         self.conns = []
 
-
     def handleClient(self, addr, idSelf, game):
         self.gameInProgress = True
         connSelf = self.contacts[idSelf]
-
-        # TODO - send character data
-        # send map
-        #self.contacts.notify(idSelf, Code.DATA, data)
         handleMsgCode = {   Code.CHAR_REQ:  self.charRequest,
                             Code.EXIT:      self.leave}
 
         while self.gameInProgress:
             msg = receiveNextMsg( connSelf )
             print "received data:", msg.command, msg.data
-            if msg.command in handleMsgCode:
+            # NOTE: Separate cases are provided for commands that
+            #       generate notifyAll calls
+            if msg.command == Code.CHAR_REQ:
+                if KEY_MAP[msg] != None:
+                    handleMsgCode[Code.CHAR_REQ](game, msg.data)
+                else: # TODO: Add a check for a valid character selection
+                    return "Invalid character. Please try again.\n"
+            elif msg.command in handleMsgCode:
                 handleMsgCode[msg.command](game, msg.data)
             else:
                 self.contacts.notifyAll(Code.DATA, msg.data)
@@ -73,6 +76,22 @@ class Server(object):
 
         for thread in threads:
             thread.join()
+
+        self.contacts.notifyAll(Code.DATA,
+                                "All players have selected characters. Ready to begin.")
+        self.contacts.notifyAll(Code.MAP,
+                                [MAP])
+
+        # NOTE: We may need to make GameInProgress part of gameData so that
+        #       the game can be regularly interrupted for notifyAlls;
+        #       can wrap this logic below in a while gameInProgress
+        #for i in range(len(self.contacts)):
+        #    threads.append(threading.Thread(target=self.handleClient,
+        #                                    args=(addrList[i], i, game)))
+        #    threads[-1].start()
+
+        #for thread in threads:
+        #    thread.join()
 
 ##############################################################################
 ### Code for handling each message code

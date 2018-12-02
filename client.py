@@ -31,8 +31,11 @@ class Client(object):
         self.waitToStart()
 
     def waitToStart(self):
-        self.name = raw_input("What's your name:")
-        self.send(Code.DATA, self.name)
+        nameSet = False:
+        while not NameSet:
+            self.name = raw_input("What's your name:")
+            self.send(Code.DATA, self.name)
+            nameSet = receiveNextMsg(self.s)
 
         msg = receiveNextMsg(self.s)
         # Might want to drop this out or have a count down or something?
@@ -53,7 +56,8 @@ class Client(object):
         handleMsgCode = {   Code.EXIT:         self.leave,
                             Code.CHAR_DENY:    self.charDeny,
                             Code.CHAR_ACC:     self.charAccept,
-                            Code.DATA:         self.printData
+                            Code.DATA:         self.printData,
+                            Code.MAP:          self.printMap
                         }
         while self.gameInProgress:
             msg = receiveNextMsg(self.s)
@@ -75,7 +79,12 @@ class Client(object):
 ###        data - data from message packet
 ##############################################################################
     def printData(self, data):
-        print data
+        #print data
+        pass
+
+    def printMap(self, map):
+        #print map
+        pass
 
     def leave(self, _data ):
         self.s.shutdown(socket.SHUT_RDWR)
