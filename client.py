@@ -31,7 +31,7 @@ class Client(object):
         self.waitToStart()
 
     def waitToStart(self):
-        nameSet = False:
+        NameSet = False
         while not NameSet:
             self.name = raw_input("What's your name:")
             self.send(Code.DATA, self.name)
