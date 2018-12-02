@@ -84,7 +84,7 @@ basicStrings = {
                 }
 
 formatStrs = {  Code.START:     'Your id is {0}',
-                Code.CHAR_ACC:  '{0} ({1}) has selected {3}'
+                Code.CHAR_ACC:  '{0} (Player {1}) has selected {3}'
              }
 
 formatFuncs = {

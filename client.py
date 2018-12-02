@@ -50,10 +50,10 @@ class Client(object):
     def startGame(self):
         self.gameInProgress = True
 
-        handleMsgCode = {     Code.EXIT:         self.leave,
+        handleMsgCode = {   Code.EXIT:         self.leave,
                             Code.CHAR_DENY:    self.charDeny,
-                            Code.CHAR_ACC:    self.charAccept,
-                            Code.DATA:        self.printData
+                            Code.CHAR_ACC:     self.charAccept,
+                            Code.DATA:         self.printData
                         }
         while self.gameInProgress:
             msg = receiveNextMsg(self.s)
