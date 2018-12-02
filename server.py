@@ -29,17 +29,10 @@ class Server(object):
         while self.gameInProgress:
             msg = receiveNextMsg( connSelf )
             print "received data:", msg.command, msg.data
-            # NOTE: Separate cases are provided for commands that
-            #       generate notifyAll calls
-            if msg.command == Code.CHAR_REQ:
-                if KEY_MAP[msg] != None:
-                    handleMsgCode[Code.CHAR_REQ](game, msg.data)
-                else: # TODO: Add a check for a valid character selection
-                    return "Invalid character. Please try again.\n"
-            elif msg.command in handleMsgCode:
+            if msg.command in handleMsgCode:
                 handleMsgCode[msg.command](game, msg.data)
-            else:
-                self.contacts.notifyAll(Code.DATA, msg.data)
+
+            #self.contacts.notifyAll(Code.DATA, msg.data)
 
 
     def run(self):

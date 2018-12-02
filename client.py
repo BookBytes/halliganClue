@@ -31,11 +31,9 @@ class Client(object):
         self.waitToStart()
 
     def waitToStart(self):
-        NameSet = False
-        while not NameSet:
-            self.name = raw_input("What's your name:")
-            self.send(Code.DATA, self.name)
-            nameSet = receiveNextMsg(self.s)
+        self.name = raw_input("What's your name:")
+
+        self.send(Code.DATA, self.name)
 
         msg = receiveNextMsg(self.s)
         # Might want to drop this out or have a count down or something?

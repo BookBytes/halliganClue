@@ -183,7 +183,7 @@ class Game(object):
             if it is still available. Returns character if request is successful,
             false otherwise. Returns reason if failure"""
 
-        if (suspectKey not in KEY_MAP) and not SuspectList.has(KEY_MAP[suspectKey]):
+        if (suspectKey not in KEY_MAP) or not isinstance(KEY_MAP[suspectKey], SuspectList):
                 return (False, "That is not a valid suspect code, try again.")
 
         suspect = KEY_MAP[suspectKey]

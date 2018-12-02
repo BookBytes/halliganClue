@@ -1,11 +1,6 @@
 from enum import Enum
 
-class AugEnum(Enum):
-    @classmethod
-    def has(self, value):
-        return any(value == item.name for item in self)
-
-class SuspectList(AugEnum):
+class SuspectList(Enum):
     MEGAN_C = 'Megan "The Captain" Monroe'
     MING = 'Ming "The Hacker" Chow'
     MARK = 'Mark "The Shark" Sheldon'
@@ -13,7 +8,7 @@ class SuspectList(AugEnum):
     NORMAN = 'Norman "The Linguist" Ramsey'
     DONNA = 'Donna "The Coordinator" Cirelli'
 
-class WeaponsList(AugEnum):
+class WeaponsList(Enum):
     MARKER = 'Dry white board marker'
     BOOK = '105 Textbook'
     BOMB = 'Binary Bomb'
@@ -21,7 +16,7 @@ class WeaponsList(AugEnum):
     SQL = 'SQL Injection'
     PROOF = 'NP = P proof'
 
-class PlacesList(AugEnum):
+class PlacesList(Enum):
     COLLAB = 'Collab Room'
     ENTRY = 'Entryway'
     EECS = 'EECS Office'
