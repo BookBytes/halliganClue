@@ -28,10 +28,11 @@ class PlacesList(Enum):
     EXTEN = 'Extension'
 
 class Actions(Enum):
-    ROLL = 1
-    SNEAK = 2
-    ACCUSE = 3
-    SUGGEST = 4
+    ROLL = "Roll the dice to move"
+    SNEAK = "Take a secret passage way"
+    ACCUSE = "Make an accusation"
+    SUGGEST = "Make a suggestion"
+    FINISH = "Finish your turn"
 
 
 LOCATIONS = {PlacesList.COLLAB: (4, 9), PlacesList.ENTRY: (4, 35), PlacesList.EECS: (5, 63),
@@ -40,7 +41,7 @@ LOCATIONS = {PlacesList.COLLAB: (4, 9), PlacesList.ENTRY: (4, 35), PlacesList.EE
 
 
 
-
+# Reversed in mapToSym in game
 KEY_MAP = { "C" : SuspectList.MEGAN_C,
             "H" : SuspectList.MING,
             "S" : SuspectList.MARK,
@@ -69,6 +70,7 @@ KEY_MAP = { "C" : SuspectList.MEGAN_C,
             "p" : Actions.SNEAK,
             "a" : Actions.ACCUSE,
             "s" : Actions.SUGGEST,
+            "d" : Actions.FINISH
 
             }
 

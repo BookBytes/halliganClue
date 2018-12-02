@@ -7,7 +7,7 @@
 import random
 import itertools
 import threading
-from game_data import SuspectList, WeaponsList, PlacesList
+from game_data import SuspectList, WeaponsList, PlacesList, Actions
 from game_data import MAP, LOCATIONS, KEY_MAP
 
 
@@ -28,9 +28,7 @@ class Deck(object):
         place = self.draw(places)
 
         self.solution = [char, weapon, place]
-
         self.userCards = suspects + weapons + places
-        
         self.handSize = len(self.userCards)/numPlayers
 
     def draw(self, deck):
@@ -50,17 +48,9 @@ class Deck(object):
         for _i in range(self.handSize):
             card = self.draw(self.userCards)
             hand.append(card)
-        return [card.value for card in hand]
+        return hand
 
     def checkSolution(self, guess):
-        # guess is a tuple structured as follows: (char, weapon, room).
-        # Unlike the physical board game the user does not need
-        # to see the cards to check so they can guess again.
-
-        #       guess[0] == self.solution[0] and \
-        #       guess[1] == self.solution[1] and \
-        #       guess[2] == self.solution[2]
-
         return self.solution == guess
 
 
@@ -98,7 +88,6 @@ class Suspect(object):
                 return "Invalid direction " + direction + " provided"
 
         self.element.setLocation(currX + xMovement, currY + yMovement)
-
 
 class Weapon(object):
     def __init__(self, x, y, sym):
@@ -193,11 +182,44 @@ class Game(object):
 
         if suspect in self.suspects:
             self.suspects.remove(suspect)
-            return (suspect, True)
+            return (suspect, len(self.suspects) == 6 - self.numPlayers)
         else:
             return (False, "That character is already chosen")
 
     @locked
     def availableSuspects(self):
         """ Returns a json serializble suspect list """
-        return [(self.mapToSym[x], x.value) for x in self.suspects]
+        return self.toKeyDict(self.suspects)
+
+    def toKeyDict(self, list):
+        return {self.mapToSym[x]:x.value for x in list}
+
+    @locked
+    def getHand(self):
+        cards = self.deck.dealPlayer()
+        return self.toKeyDict(cards)
+
+    def startTurnActions(self):
+        actions = [Actions.ROLL, Actions.SNEAK, Actions.ACCUSE]
+        return self.toKeyDict(actions)
+
+    def contTurnActions(self, character):
+        # If character is in room, allow suggestions
+        actions = [Actions.ACCUSE, Actions.SUGGEST]
+        return self.toKeyDict(actions)
+
+    def canTakeAction(self, character, actionKey, actionOpts):
+        # If character not in room, can't accuse, take passageway
+        failure = None
+        if actionKey not in actionOpts:
+            return (False, "That is not an available action. Try again:")
+
+        characterCant = False # FIX ME
+        if characterCant:
+            return (False, "You cannot take this action at this time. Try again:")
+
+        return (KEY_MAP[actionKey], None)
+
+
+    def roll(self):
+        return random.randint(1, 6)

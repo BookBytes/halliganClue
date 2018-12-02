@@ -3,6 +3,8 @@ from message import Message, Code
 class Contacts:
     def __init__(self):
         self.contacts = {}
+        self.order = []
+        self.first = 0
 
     def add(self, connection):
         """ Adds a connection, eventually this will need to be altered

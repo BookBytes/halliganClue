@@ -22,9 +22,13 @@ class Client(object):
     def __init__(self):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        #io_lock = threading.Lock()
-        #receiver = threading.Thread(target=receive, args = (io_lock))
-        #intera
+        self.handleMsgCode = { Code.EXIT:      self.leave,
+                            Code.CHAR_PROMPT:  self.charPrompt,
+                            Code.CHAR_ACC:     self.charAccept,
+                            Code.DATA:         self.printData,
+                            Code.MAP:          self.printMap,
+                            Code.DECK:         self.printData,
+                            Code.TURN_PROMPT:  self.turnPrompt }
 
     def run(self):
         self.s.connect(('127.0.0.1', 5005))
@@ -33,36 +37,34 @@ class Client(object):
     def waitToStart(self):
         self.name = raw_input("What's your name:")
 
-        self.send(Code.DATA, self.name)
+        self.send(Code.NAME, [self.name])
 
         msg = receiveNextMsg(self.s)
         # Might want to drop this out or have a count down or something?
         while msg and msg.command != Code.START:
-            print "Received:"
-            print msg.command
-            data = msg.data
-            print data
-            print "------"
+            # print "Received:"
+            # print msg.command
+            # data = msg.data
+            # print data
+            # print "------"
             msg = receiveNextMsg(self.s)
         [self.id] = msg.data
         print msg.pretty()
         self.startGame()
 
+
     def startGame(self):
         self.gameInProgress = True
 
-        handleMsgCode = {   Code.EXIT:         self.leave,
-                            Code.CHAR_PROMPT:    self.charDeny,
-                            Code.CHAR_ACC:     self.charAccept,
-                            Code.DATA:         self.printData,
-                            Code.MAP:          self.printMap,
-                            Code.DECK:         self.printData
-                        }
         while self.gameInProgress:
             msg = receiveNextMsg(self.s)
+            print "--------------------------------------"
             print msg.pretty()
-            handleMsgCode[msg.command](msg.data)
-            print "------"
+            if msg.command in self.handleMsgCode:
+                self.handleMsgCode[msg.command](msg.data)
+            else:
+                pass
+
 
 
     # Send message to server
@@ -90,14 +92,19 @@ class Client(object):
         self.s.close()
         exit()
 
-    def charDeny(self, data):
+    def charPrompt(self, data):
         character = raw_input("Character symbol:")
-        self.send(Code.CHAR_REQ, [self.name, self.id, character])
+        self.send(Code.CHAR_REQ, [character])
 
     def charAccept(self, data):
         name, id, charCode, charName = data
         if id == self.id:
             self.charCode = charCode
+
+    def turnPrompt(self, data):
+        options, reason = data
+        action = raw_input("What action will you take? : ")
+        self.send(Code.TURN, [action, options.keys() ])
 
 ##############################################################################
 

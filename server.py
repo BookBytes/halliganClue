@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 import socket
 import threading
-from game import Game
-from message import Message, Code, receiveNextMsg
 import math
+from game import Game
 from contacts import Contacts
+from client_handler import ClientHandler
+from message import Message, Code, receiveNextMsg
 
 class Server(object):
     def __init__(self):
@@ -17,21 +18,6 @@ class Server(object):
         self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         # TODO: make a dictionary of connections, one sublist for each game
         self.conns = []
-
-    def handleClient(self, addr, idSelf, game):
-        self.gameInProgress = True
-        connSelf = self.contacts[idSelf]
-        handleMsgCode = {   Code.CHAR_REQ:  self.charRequest,
-                            Code.EXIT:      self.leave}
-
-        while self.gameInProgress:
-            msg = receiveNextMsg( connSelf )
-            print "received data:", msg.command, msg.data
-            if msg.command in handleMsgCode:
-                handleMsgCode[msg.command](game, msg.data)
-
-            #self.contacts.notifyAll(Code.DATA, msg.data)
-
 
     def run(self):
         addrToGame = {}
@@ -61,55 +47,10 @@ class Server(object):
                                 "Please select a character"])
 
         for i in range(len(self.contacts)):
-            threads.append(threading.Thread(target=self.handleClient,
-                                            args=(addrList[i], i, game)))
+            threads.append(threading.Thread(target= ClientHandler.start,
+                                            args=(i, game, self.contacts)))
             threads[-1].start()
 
         for thread in threads:
             thread.join()
-
-        # NOTE: We may need to make GameInProgress part of gameData so that
-        #       the game can be regularly interrupted for notifyAlls;
-        #       can wrap this logic below in a while gameInProgress
-        #for i in range(len(self.contacts)):
-        #    threads.append(threading.Thread(target=self.handleClient,
-        #                                    args=(addrList[i], i, game)))
-        #    threads[-1].start()
-
-        #for thread in threads:
-        #    thread.join()
-
-##############################################################################
-### Code for handling each message code
-### Arguments
-###		self
-###     game
-###		data - data from message packet
-##############################################################################
-
-    def leave(self, _game , _data):
-        self.contacts.notifyAll(Code.EXIT)
-        #self.s.shutdown(socket.SHUT_RDWR) # -> Bad file descriptor
         self.s.close()
-        exit()
-
-    def charRequest(self, game, data):
-        name, id, charKey = data
-        char, cont = game.claimSuspect(charKey)
-        if char:
-            self.contacts.notifyAll(Code.CHAR_ACC,
-                                    [name, id, char.name, char.value])
-            self.contacts.notify(   id,
-                                    Code.DECK,
-                                    [ game.deck.dealPlayer() ])
-            if cont == True:
-                self.contacts.notifyAll(Code.DATA,
-                                        "All players have selected characters. Ready to begin.")
-                self.contacts.notifyAll(Code.MAP, self.game.map)
-
-        else:
-            self.contacts.notify(   id,
-                                    Code.CHAR_PROMPT,
-                                    [ game.availableSuspects(),
-                                     cont ])
-##############################################################################

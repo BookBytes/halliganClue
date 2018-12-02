@@ -20,25 +20,26 @@ def receiveNextMsg(conn):
 
 class Code(Enum):
     """ Valid message commands """
-    MSG = 1      # Basic text updates
-    START = 2    # Send with no data, contacts will append id
+    NAME = 1         # Sends player name to server
+    START = 2        # Send with no data, contacts will append id
     EXIT = 3
-    DATA = 4     # This is for misc. data BESIDES map
-    CHAR_REQ = 5 # Request a character, [name, id, charKey]
-    CHAR_PROMPT = 6 # Rejects a character request [[available charCodes], reason]
-    CHAR_ACC = 7 # Notifies of accepted character request [name, id, charCode, charName]
-    CARDS = 8   # [[three elemCodes]]
-    MAP = 9    # Sends the board game "map"
-    DECK = 10  # Cards [{name of enums : strings}]
-    TURN_PROMPT = 11 # prompts turn [{key: action string}, reason] roll, passage, accuse
+    DATA = 4         # This is for misc. data BESIDES map
+    CHAR_REQ = 5     # Request a character, [charKey]
+    CHAR_PROMPT = 6  # Rejects a character request [[available charCodes], reason]
+    CHAR_ACC = 7     # Notifies of accepted character request [name, id, charCode, charName]
+    CARDS = 8        # [[three elemCodes]]
+    MAP = 9          # Sends the board game "map"
+    DECK = 10        # Cards [[name of enums : strings]]
+    TURN_PROMPT = 11 # prompts turn [[key: action string], reason] roll, passage, accuse
+    TURN = 20        # response to TURN_PROMPT [actionKey, [promptedKeys]]
     MOVE_PROMPT = 12 # [diceRoll, reason]
-    MOVE = 13 # Walk request [charCode, diceSum, moveStr]
-    TURN_CONT = 14  # prompts turn [{key: action string}] suggest, accuse
-    SUG_PROMPT = 15 # [reason]
-    SUGGESTION = 16 # [suggesterId, [keys for things suggested]], sent to server and others
-    CARD_SHOW = 17 # [suggesterId, key for card if in hand ] if no cards -> [none, none]
-    ACC_PROMPT = 18 # [reason]
-    ACCUSE = 19 # [[keys for things accusing]]
+    MOVE = 13        # Walk request [charCode, diceSum, moveStr]
+    TURN_CONT = 14   # prompts turn [{key: action string}] suggest, accuse
+    SUG_PROMPT = 15  # [reason]
+    SUGGESTION = 16  # [suggesterId, [keys for things suggested]], sent to server and others
+    CARD_SHOW = 17   # [suggesterId, key for card if in hand ] if no cards -> [none, none]
+    ACC_PROMPT = 18  # [reason]
+    ACCUSE = 19      # [[keys for things accusing]]
 
 
 class Message:
@@ -77,20 +78,6 @@ class Message:
             strPretty = str(self.command) + " " + str(self.data)
         return strPretty
 
-def charDeny(data):
-    list, reason = data
-    lines = []
-    lines.append(reason)
-    lines.append("Available characters:")
-    for char, suspect in list:
-        lines.append('{: <35} ({})'.format(suspect, char))
-    return '\n'.join(lines)
-
-def deck(data):
-    print "Your cards"
-    for card in data:
-        print card
-
 ### Return Types
 # Simple strings
 basicStrings = {
@@ -101,10 +88,18 @@ basicStrings = {
 formatStrs = {  Code.START:     'Your id is {0}',
                 Code.CHAR_ACC:  '{0} (Player {1}) has selected {3}',
                 Code.MAP:       '\n{0}\n',
+                Code.DATA:      '\n{0}\n',
              }
 
 # Functions
 formatFuncs = {
-                Code.CHAR_PROMPT: charDeny,
-                Code.DECK: deck
+                Code.CHAR_PROMPT: (lambda d : stringifyList([d[1], "Available characters:"],d[0])),
+                Code.DECK: (lambda d : stringifyList(["Your cards:"], *d)),
+                Code.TURN_PROMPT: (lambda d : stringifyList(["Turn Options:"], *d)),
               }
+
+def stringifyList(text, list, leftSpace = 35):
+    formatStr = '{{0: <{}}} ({{1}})'.format(leftSpace)
+    for key in list:
+        text.append( formatStr.format(list[key], key))
+    return '\n'.join(text)
