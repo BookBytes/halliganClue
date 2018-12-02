@@ -18,7 +18,7 @@ def locked(func):
     return wrapper
 
 class Deck(object):
-    def __init__(self):
+    def __init__(self, numPlayers):
         suspects = list(SuspectList)
         weapons = list(WeaponsList)
         places = list(PlacesList)
@@ -30,6 +30,8 @@ class Deck(object):
         self.solution = [char, weapon, place]
 
         self.userCards = suspects + weapons + places
+        
+        self.handSize = len(self.userCards)/numPlayers
 
     def draw(self, deck):
         """ Draws a random card from the given deck.
@@ -38,17 +40,17 @@ class Deck(object):
         deck.remove(card)
         return card
 
-    def dealPlayer(self, numPlayers):
+    def dealPlayer(self):
         if len(self.userCards) == 0:
             return []  # all cards dealt
         # Reference on range
         # https://stackoverflow.com/questions/3685974/
         # iterate-a-certain-number-of-times-without-storing-the-iteration-number-anywhere
         hand = []
-        for _i in range(18/numPlayers):
+        for _i in range(self.handSize):
             card = self.draw(self.userCards)
             hand.append(card)
-        return hand
+        return [card.value for card in hand]
 
     def checkSolution(self, guess):
         # guess is a tuple structured as follows: (char, weapon, room).
@@ -104,14 +106,14 @@ class Weapon(object):
 
 
 class Game(object):
-    def __init__(self, addrList):
+    def __init__(self, numPlayers):
 
         # FIX ME
         self.lock = threading.Lock()
-
         self.suspects = list(SuspectList)
+        self.numPlayers = numPlayers
 
-        if len(addrList) < 2 or len(addrList) > 6:
+        if self.numPlayers < 2 or self.numPlayers > 6:
             return
 
         # Characters listed in character player order
@@ -161,7 +163,7 @@ class Game(object):
 
         self.weapons = []
 
-        self.deck = Deck()
+        self.deck = Deck(numPlayers)
         self.map = MAP
 
         for item in self.items:
@@ -181,7 +183,8 @@ class Game(object):
     def claimSuspect(self, suspectKey):
         """ Requests a given suspect via suspect code and removes it from list
             if it is still available. Returns character if request is successful,
-            false otherwise. Returns reason if failure"""
+            false otherwise. Returns reason if failure, true if last players
+            to select"""
 
         if (suspectKey not in KEY_MAP) or not isinstance(KEY_MAP[suspectKey], SuspectList):
                 return (False, "That is not a valid suspect code, try again.")
@@ -190,7 +193,7 @@ class Game(object):
 
         if suspect in self.suspects:
             self.suspects.remove(suspect)
-            return (suspect, None)
+            return (suspect, True)
         else:
             return (False, "That character is already chosen")
 

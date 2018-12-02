@@ -25,14 +25,20 @@ class Code(Enum):
     EXIT = 3
     DATA = 4     # This is for misc. data BESIDES map
     CHAR_REQ = 5 # Request a character, [name, id, charKey]
-    CHAR_DENY = 6 # Rejects a character request [[available charCodes], reason]
+    CHAR_PROMPT = 6 # Rejects a character request [[available charCodes], reason]
     CHAR_ACC = 7 # Notifies of accepted character request [name, id, charCode, charName]
-    WALK_REQ = 8 # Walk request [charCode, diceSum, moveStr]
-    WALK_DENY = 9 # Walk rejections [reason]
-    MOVE = 10    # Move notification [elemCode, (starting), (ending)]
-    CARDS = 11   # [[three elemCodes]]
-    ACCUSE = 12  # Accusation [name, [charCode, weaponCode, placeCode]]
-    MAP = 13     # Sends the board game "map"
+    CARDS = 8   # [[three elemCodes]]
+    MAP = 9    # Sends the board game "map"
+    DECK = 10  # Cards [{name of enums : strings}]
+    TURN_PROMPT = 11 # prompts turn [{key: action string}, reason] roll, passage, accuse
+    MOVE_PROMPT = 12 # [diceRoll, reason]
+    MOVE = 13 # Walk request [charCode, diceSum, moveStr]
+    TURN_CONT = 14  # prompts turn [{key: action string}] suggest, accuse
+    SUG_PROMPT = 15 # [reason]
+    SUGGESTION = 16 # [suggesterId, [keys for things suggested]], sent to server and others
+    CARD_SHOW = 17 # [suggesterId, key for card if in hand ] if no cards -> [none, none]
+    ACC_PROMPT = 18 # [reason]
+    ACCUSE = 19 # [[keys for things accusing]]
 
 
 class Message:
@@ -80,6 +86,11 @@ def charDeny(data):
         lines.append('{: <35} ({})'.format(suspect, char))
     return '\n'.join(lines)
 
+def deck(data):
+    print "Your cards"
+    for card in data:
+        print card
+
 ### Return Types
 # Simple strings
 basicStrings = {
@@ -89,10 +100,11 @@ basicStrings = {
 # Strings with embedded data
 formatStrs = {  Code.START:     'Your id is {0}',
                 Code.CHAR_ACC:  '{0} (Player {1}) has selected {3}',
-                Code.MAP:       '\n{0}\n'
+                Code.MAP:       '\n{0}\n',
              }
 
 # Functions
 formatFuncs = {
-                Code.CHAR_DENY: charDeny
+                Code.CHAR_PROMPT: charDeny,
+                Code.DECK: deck
               }

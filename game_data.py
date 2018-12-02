@@ -28,9 +28,11 @@ class PlacesList(Enum):
     EXTEN = 'Extension'
 
 class Actions(Enum):
-    MOVE = 1
-    SUGGEST = 2
-    ACCUSE = 2
+    ROLL = 1
+    SNEAK = 2
+    ACCUSE = 3
+    SUGGEST = 4
+
 
 LOCATIONS = {PlacesList.COLLAB: (4, 9), PlacesList.ENTRY: (4, 35), PlacesList.EECS: (5, 63),
              PlacesList.KITCHEN: (18, 9), PlacesList.BOWL: (14, 63), PlacesList.LAB: (22, 63),
@@ -38,13 +40,37 @@ LOCATIONS = {PlacesList.COLLAB: (4, 9), PlacesList.ENTRY: (4, 35), PlacesList.EE
 
 
 
-# The inverse key_map exists as mapToSym in the game object
+
 KEY_MAP = { "C" : SuspectList.MEGAN_C,
             "H" : SuspectList.MING,
             "S" : SuspectList.MARK,
             "A" : SuspectList.MEGAN_A,
             "L" : SuspectList.NORMAN,
-            "c" : SuspectList.DONNA }
+            "c" : SuspectList.DONNA,
+
+            "1" : PlacesList.COLLAB,
+            "2" : PlacesList.ENTRY,
+            "3" : PlacesList.EECS,
+            "4" : PlacesList.KITCHEN,
+            "5" : PlacesList.BOWL,
+            "6" : PlacesList.LAB,
+            "7" : PlacesList.COUCHES,
+            "8" : PlacesList.ADMIN,
+            "9" : PlacesList.EXTEN,
+
+            "!" : WeaponsList.MARKER,
+            "@" : WeaponsList.BOMB,
+            "#" : WeaponsList.BOOK,
+            "$" : WeaponsList.SQUIRREL,
+            "%" : WeaponsList.SQL,
+            "^" : WeaponsList.PROOF,
+
+            "r" : Actions.ROLL,
+            "p" : Actions.SNEAK,
+            "a" : Actions.ACCUSE,
+            "s" : Actions.SUGGEST,
+
+            }
 
 
 MAP = "+=======================================================================+\n" \

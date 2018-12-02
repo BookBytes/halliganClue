@@ -19,10 +19,8 @@ class Contacts:
         except:
             print "msg failed"
 
-    def notifyNext(self, id, command, data = None):
-        """ Notifies next connection in order """
-        next = (id + 1) % len(self)
-        self.notify(next, command, data)
+    def nextId(self, id):
+        return (id + 1) % len(self)
 
     def notifyAll(self, command, data = None):
         """ Notifies all connections """

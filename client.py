@@ -52,10 +52,11 @@ class Client(object):
         self.gameInProgress = True
 
         handleMsgCode = {   Code.EXIT:         self.leave,
-                            Code.CHAR_DENY:    self.charDeny,
+                            Code.CHAR_PROMPT:    self.charDeny,
                             Code.CHAR_ACC:     self.charAccept,
                             Code.DATA:         self.printData,
-                            Code.MAP:          self.printMap
+                            Code.MAP:          self.printMap,
+                            Code.DECK:         self.printData
                         }
         while self.gameInProgress:
             msg = receiveNextMsg(self.s)

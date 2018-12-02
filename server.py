@@ -6,8 +6,6 @@ from game import Game
 from message import Message, Code, receiveNextMsg
 import math
 from contacts import Contacts
-from game_data import KEY_MAP, MAP
-
 
 class Server(object):
     def __init__(self):
@@ -55,10 +53,10 @@ class Server(object):
 
     def initiateGame(self, addrList):
         threads = []
-        game = Game(addrList)
+        game = Game(len(addrList))
 
         self.contacts.notifyAll(Code.START)
-        self.contacts.notifyAll(Code.CHAR_DENY,
+        self.contacts.notifyAll(Code.CHAR_PROMPT,
                                 [game.availableSuspects(),
                                 "Please select a character"])
 
@@ -69,11 +67,6 @@ class Server(object):
 
         for thread in threads:
             thread.join()
-
-        self.contacts.notifyAll(Code.DATA,
-                                "All players have selected characters. Ready to begin.")
-        self.contacts.notifyAll(Code.MAP,
-                                [MAP])
 
         # NOTE: We may need to make GameInProgress part of gameData so that
         #       the game can be regularly interrupted for notifyAlls;
@@ -102,13 +95,21 @@ class Server(object):
 
     def charRequest(self, game, data):
         name, id, charKey = data
-        char, reason = game.claimSuspect(charKey)
+        char, cont = game.claimSuspect(charKey)
         if char:
             self.contacts.notifyAll(Code.CHAR_ACC,
                                     [name, id, char.name, char.value])
+            self.contacts.notify(   id,
+                                    Code.DECK,
+                                    [ game.deck.dealPlayer() ])
+            if cont == True:
+                self.contacts.notifyAll(Code.DATA,
+                                        "All players have selected characters. Ready to begin.")
+                self.contacts.notifyAll(Code.MAP, self.game.map)
+
         else:
             self.contacts.notify(   id,
-                                    Code.CHAR_DENY,
+                                    Code.CHAR_PROMPT,
                                     [ game.availableSuspects(),
-                                     reason ])
+                                     cont ])
 ##############################################################################

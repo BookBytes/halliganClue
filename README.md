@@ -15,6 +15,32 @@ Map into its own file
 Need character mappings for all elements
 
 
+
+
+## Would be nice
+Notify everyone turn is being taken
+Better ordering of player
+Game end request
+Block the door
+drop out of character order
+
+
+
+
+roll, passage
+        roll
+return number w/ move prompt
+        move string
+accept move string
+send msg
+send new map
+if applicable, offer suggestion prompt
+        make suggestion
+begin suggestion logic
+        offer accuse at the end
+
+game -> available actions
+
 ### An ideal list of messages
 ##### Client <-> Server
 
