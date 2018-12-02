@@ -36,8 +36,7 @@ class Server(object):
             if msg.command in handleMsgCode:
                 handleMsgCode[msg.command](game, msg.data)
             else:
-                self.contacts.notifyAll("", msg.data)
-                # self.contacts.notifyAll(Code.DATA, msg.data)
+                self.contacts.notifyAll(Code.DATA, msg.data)
 
 
     def run(self):
