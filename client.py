@@ -1,22 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import socket
-import threading
+import socket, threading, time, sys, signal
 from message import Message, Code, receiveNextMsg, stringifyDict
-import time
-# The following file is client_server model.
-# How to run my program:
-# Open different tabs in terminal, one terminal can run server code
-# the other run clients code.
-
-# Run server: initialize a Server with b = Server(), then type
-# b.run() to run the server. After that, the server will receive
-# message from client, print it on the screen and return to the client
-
-# Run client: initialize a Client with a = Client(), then start to
-# send message and receive message. close() if you want to terminate
-# the client
-
 
 class Client(object):
     # Initiate the client with character and cards
@@ -35,9 +20,9 @@ class Client(object):
                             Code.SUG_PROMPT:   self.suggestionPrompt,
                             Code.TURN_CONT:    self.turnPrompt,
                             Code.SUGGESTION:   self.evalSuggestion }
+        signal.signal(signal.SIGINT, self.signal_handler)
 
     def run(self):
-        #host = socket.gethostname()
         host = raw_input("Welcome, you've been invited for a formal dinner "
                           + "at the house of Dr. Fisher to celebrate the end "
                           + "of the semester. Please enter your host's address: ")
@@ -51,7 +36,7 @@ class Client(object):
         self.send(Code.NAME, [self.name])
 
         msg = receiveNextMsg(self.s)
-        # Might want to drop this out or have a count down or something?
+        # TODO: Might want to drop this out or have a count down or something?
         while msg.command != Code.START:
             msg = receiveNextMsg(self.s)
         [self.id] = msg.data
@@ -71,12 +56,13 @@ class Client(object):
             else:
                 pass
 
-
-
     # Send message to server
     def send(self, command, data = None):
         msg = Message(command = command, data = data)
         self.s.send( msg.encode() )
+        
+    def signal_handler(obj, num, frame):
+        sys.exit(0)
 
 
 ##############################################################################
@@ -86,11 +72,9 @@ class Client(object):
 ###        data - data from message packet
 ##############################################################################
     def printData(self, data):
-        #print data
         pass
 
     def printMap(self, map):
-        #print map
         pass
 
     def receiveDeck(self, data):
