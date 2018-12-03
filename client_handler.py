@@ -2,14 +2,13 @@
 from game_data import Actions
 from message import Message, Code, receiveNextMsg
 from game import Game
+import sys
 
 class ClientHandler:
     def __init__(self, id, game, contacts):
         self.id = id
         self.game = game
         self.contacts = contacts
-
-        self.gameInProgress = True
 
         self.actionHandlers = { Actions.ROLL    : self.roll,
                                 Actions.SNEAK   : self.sneak,
@@ -28,6 +27,7 @@ class ClientHandler:
         handler.loop()
 
     def loop(self):
+        self.gameInProgress = True
         connSelf = self.contacts[ self.id ]
         while self.gameInProgress:
             msg = receiveNextMsg( connSelf )

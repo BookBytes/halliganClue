@@ -53,4 +53,10 @@ class Server(object):
 
         for thread in threads:
             thread.join()
+
         self.s.close()
+
+
+if __name__ == "__main__":
+    s = Server()
+    s.run()

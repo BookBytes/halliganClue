@@ -3,6 +3,7 @@
 import socket
 import threading
 from message import Message, Code, receiveNextMsg
+import time
 # The following file is client_server model.
 # How to run my program:
 # Open different tabs in terminal, one terminal can run server code
@@ -90,6 +91,7 @@ class Client(object):
     def leave(self, _data ):
         self.s.shutdown(socket.SHUT_RDWR)
         self.s.close()
+        time.sleep(3)
         exit()
 
     def charPrompt(self, data):
@@ -110,3 +112,4 @@ class Client(object):
 
 if __name__ == "__main__":
     c = Client()
+    c.run()
