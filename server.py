@@ -42,9 +42,9 @@ class Server(object):
         game = Game(len(addrList))
 
         self.contacts.notifyAll(Code.START)
+        self.contacts.notifyAll(Code.INFO, ["Please select a character"])
         self.contacts.notifyAll(Code.CHAR_PROMPT,
-                                [game.availableSuspects(),
-                                "Please select a character"])
+                                game.availableSuspects())
 
         for i in range(len(self.contacts)):
             threads.append(threading.Thread(target= ClientHandler.start,
@@ -54,6 +54,7 @@ class Server(object):
         for thread in threads:
             thread.join()
 
+        self.s.shutdown(socket.SHUT_RDWR)
         self.s.close()
 
 

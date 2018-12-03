@@ -251,7 +251,7 @@ class Game(object):
     def move(self, character, roll, movement):
         """ Moves the character to a new board location.
             Args:
-                Character Enumeration
+                Character key
                 Dice roll number
                 Movement String
             Returns:
@@ -263,6 +263,35 @@ class Game(object):
 
     def roll(self):
         return random.randint(1, 6)
+
+    def isValidTrio(self,   weaponK = None,
+                            murdererK = None,
+                            placeK = None):
+        """ Checks game solution.
+            Args:
+                guess - keys for [murderer, weapon, place]
+            Returns:
+                success  -  {murderer, weapon, place} if valid,
+                            False otherwise
+                feedback -  None if successful
+                            First failure reason if not valid """
+        trio = {"murderer": None, "weapon": None, "place": None}
+        if murdererK in KEY_MAP and \
+                isinstance(KEY_MAP[murdererK], SuspectList):
+            trio["murderer"] = KEY_MAP[murdererK]
+        else:
+            return (False, "That is not a suspect, please try again")
+        if weaponK in KEY_MAP and \
+            isinstance(KEY_MAP[weaponK], WeaponsList):
+            trio["weapon"] = KEY_MAP[weaponK]
+        else:
+            return (False, "That is not a weapon, please try again")
+        if placeK in KEY_MAP and \
+            isinstance(KEY_MAP[placeK], PlacesList):
+            trio["place"]= KEY_MAP[placeK]
+        else:
+            return (False, "That is not a place, please try again")
+        return (trio, "")
 
     def checkSolution(self, weaponK = None,
                             murdererK = None,
@@ -278,26 +307,14 @@ class Game(object):
                             Failure reason if not valid
                             Solution if valid but incorrect  """
 
-        if murdererK in KEY_MAP and \
-                isinstance(KEY_MAP[murdererK], SuspectList):
-            murderer = KEY_MAP[murdererK]
+        success, feedback = self.isValidTrio(weaponK, murdererK, placeK)
+        if success:
+            correct = self.deck.checkSolution( weapon = success["weapon"],
+                                               murderer = success["murderer"],
+                                               place = success["place"] )
+            if correct:
+                return (1, None)
+            else:
+                return (0, "That accusation was incorrect")
         else:
-            return (-1, "That is not a suspect, please try again")
-        if weaponK in KEY_MAP and \
-            isinstance(KEY_MAP[weaponK], WeaponsList):
-            weapon = KEY_MAP[weaponK]
-        else:
-            return (-1, "That is not a weapon, please try again")
-        if placeK in KEY_MAP and \
-            isinstance(KEY_MAP[placeK], PlacesList):
-            place = KEY_MAP[placeK]
-        else:
-            return (-1, "That is not a place, please try again")
-
-        correct = self.deck.checkSolution(  weapon = weapon,
-                                            murderer = murderer,
-                                            place = place )
-        if correct:
-            return (1, None)
-        else:
-            return (0, "That accusation was incorrect")
+            return (-1, feedback)

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import socket
 import threading
-from message import Message, Code, receiveNextMsg
+from message import Message, Code, receiveNextMsg, stringifyDict
 import time
 # The following file is client_server model.
 # How to run my program:
@@ -28,10 +28,13 @@ class Client(object):
                             Code.CHAR_ACC:     self.charAccept,
                             Code.INFO:         self.printData,
                             Code.MAP:          self.printMap,
-                            Code.DECK:         self.printData,
+                            Code.DECK:         self.receiveDeck,
                             Code.TURN_PROMPT:  self.turnPrompt,
                             Code.MOVE_PROMPT:  self.movePrompt,
-                            Code.ACC_PROMPT:   self.accusePrompt }
+                            Code.ACC_PROMPT:   self.accusePrompt,
+                            Code.SUG_PROMPT:   self.suggestionPrompt,
+                            Code.TURN_CONT:    self.turnPrompt,
+                            Code.SUGGESTION:   self.evalSuggestion }
 
     def run(self):
         self.s.connect(('127.0.0.1', 5005))
@@ -85,12 +88,14 @@ class Client(object):
         #print map
         pass
 
+    def receiveDeck(self, data):
+        self.deck = data
+
     def leave(self, _data ):
-        self.s.shutdown(socket.SHUT_RDWR)
         self.s.close()
         exit()
 
-    def charPrompt(self, data):
+    def charPrompt(self, _data):
         character = raw_input("Character symbol:")
         self.send(Code.CHAR_REQ, [character])
 
@@ -100,21 +105,43 @@ class Client(object):
             self.charCode = charCode
 
     def turnPrompt(self, data):
-        options, reason = data
+        options = data
         action = raw_input("What action will you take? : ")
         self.send(Code.TURN, [action, options.keys() ])
 
     def movePrompt(self, data):
-        diceRoll, reason = data
+        [diceRoll] = data
         movement = raw_input("")
         self.send(Code.MOVE, [diceRoll, movement])
 
-    def accusePrompt(self, data):
-        [reason] = data
+    def accusePrompt(self, _data):
         murderer = raw_input("Murderer: ")
         weapon = raw_input("Weapon: ")
         location = raw_input("Location: ")
         self.send(Code.ACCUSE, [murderer, weapon, location])
+
+    def suggestionPrompt(self, _data):
+        murderer = raw_input("Murderer: ")
+        weapon = raw_input("Weapon: ")
+        location = raw_input("Location: ")
+        self.send(Code.SUGGESTION, [self.id, [murderer, weapon, location]])
+
+    def evalSuggestion(self, data):
+        id, keys = data
+        inDeck = {}
+        raw_input("Press any key to view your hand...")
+        for cardKey in self.deck:
+            if cardKey in keys:
+                inDeck[cardKey] = self.deck[cardKey]
+        if len(inDeck):
+            print stringifyDict("", inDeck)
+            showKey = raw_input("Which will you show?:")
+            self.send(Code.CARD_SHOW, [id, showKey, inDeck, keys])
+
+        else:
+            print "You have none of these cards"
+            raw_input("Press any key to pass...")
+            self.send(Code.CARD_SHOW, [id, None, [], keys])
 
 
 ##############################################################################

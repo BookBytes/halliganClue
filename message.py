@@ -30,20 +30,19 @@ class Code(Enum):
     EXIT = 3
     INFO = 4         # This is for misc. data BESIDES map
     CHAR_REQ = 5     # Request a character, [charKey]
-    CHAR_PROMPT = 6  # Rejects a character request [[available charCodes], feedback]
+    CHAR_PROMPT = 6  # Rejects a character request [available charCodes]
     CHAR_ACC = 7     # Notifies of accepted character request [name, id, charCode, charName]
-    CARDS = 8        # [[three elemCodes]]
     MAP = 9          # Sends the board game "map"
-    DECK = 10        # Cards [[name of enums : strings]]
-    TURN_PROMPT = 11 # prompts turn [[key: action string], feedback] roll, passage, accuse
+    DECK = 10        # Cards [name of enums : strings]
+    TURN_PROMPT = 11 # prompts turn [[key: action string]] roll, passage, accuse
     TURN = 20        # response to TURN_PROMPT [actionKey, [promptedKeys]]
-    MOVE_PROMPT = 12 # [diceRoll, reason]
+    MOVE_PROMPT = 12 # [diceRoll]
     MOVE = 13        # Walk request [diceRoll, moveStr]
-    TURN_CONT = 14   # prompts turn [[key: action string], feedback] suggest, accuse
-    SUG_PROMPT = 15  # [reason]
+    TURN_CONT = 14   # prompts turn [[key: action string]] suggest, accuse
+    SUG_PROMPT = 15  # Prompts a suggestion
     SUGGESTION = 16  # [suggesterId, [keys for things suggested]], sent to server and others
-    CARD_SHOW = 17   # [suggesterId, key for card if in hand ] if no cards -> [none, none]
-    ACC_PROMPT = 18  # [reason]
+    CARD_SHOW = 17   # [suggesterId, key for card if in hand, [cards in hand], [keys for things suggested]] if no cards -> [none, none]
+    ACC_PROMPT = 18  # Prompts an accusation
     ACCUSE = 19      # [keys for things accusing]
 
 
@@ -86,27 +85,30 @@ class Message:
 # Simple strings
 basicStrings = {
                 Code.EXIT:      'Something went wrong, exiting game.',
-                Code.MOVE_PROMPT: 'Move your character',
-                Code.ACC_PROMPT: 'Make an accusation'
+                Code.ACC_PROMPT: 'Make an accusation',
+                Code.SUG_PROMPT: 'Make an suggestion',
+                Code.SUGGESTION: 'Show card to disprove this suggestion:'
                }
 
 # Strings with embedded data
 formatStrs = {  Code.START:     'Your id is {0}',
                 Code.CHAR_ACC:  '{0} (Player {1}) has selected {3}',
                 Code.MAP:       '\n{0}\n',
-                Code.INFO:      '\n{0}\n',
+                Code.INFO:      '{0}',
+                Code.MOVE_PROMPT: 'Move your character (max {0}):'
              }
 
 # Functions
 formatFuncs = {
-                Code.CHAR_PROMPT: (lambda d : stringifyList([d[1], "Available characters:"],d[0])),
-                Code.DECK: (lambda d : stringifyList(["Your cards:"], *d)),
-                Code.TURN_PROMPT: (lambda d : stringifyList([d[1],"Action Options:"], d[0])),
-                Code.TURN_CONT: (lambda d: stringifyList([d[1], "Action Options:"], do[0]))
+                Code.CHAR_PROMPT: (lambda d : stringifyDict("Available characters:", d)),
+                Code.DECK: (lambda d : stringifyDict("Your cards:", d)),
+                Code.TURN_PROMPT: (lambda d : stringifyDict("Action Options:", d)),
+                Code.TURN_CONT: (lambda d: stringifyDict("Action Options:", d ))
               }
 
-def stringifyList(text, list, leftSpace = 35):
+def stringifyDict(text, dict, leftSpace = 35):
+    strArr = [text]
     formatStr = '{{0: <{}}} ({{1}})'.format(leftSpace)
-    for key in list:
-        text.append( formatStr.format(list[key], key))
-    return '\n'.join(text)
+    for key in dict:
+        strArr.append( formatStr.format(dict[key], key))
+    return '\n'.join(strArr)
