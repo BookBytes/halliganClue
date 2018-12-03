@@ -35,13 +35,15 @@ class Client(object):
 
     def run(self):
         #host = socket.gethostname()
-        host = raw_input("Please enter the server name: ")
+        host = raw_input("Welcome, you've been invited for a formal dinner "
+                          + "at the house of Dr. Fisher to celebrate the end "
+                          + "of the semester. Please enter your host's address: ")
         port = 5005
         self.s.connect((host, port))
         self.waitToStart()
 
     def waitToStart(self):
-        self.name = raw_input("What's your name:")
+        self.name = raw_input("Confirm your name on the guest list: ")
 
         self.send(Code.NAME, [self.name])
 

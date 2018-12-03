@@ -16,7 +16,7 @@ class Server(object):
         # https://stackoverflow.com/questions/16130786/
         # why-am-i-getting-the-error-connection-refused-in-python-sockets
         host = socket.gethostname()
-        print "Please connect to host: " + host
+        print "The address of the host is " + host
         port = 5005
         self.s.bind((host, port))
         self.s.listen(10)
@@ -50,7 +50,10 @@ class Server(object):
         self.contacts.notifyAll(Code.START)
         self.contacts.notifyAll(Code.CHAR_PROMPT,
                                 [game.availableSuspects(),
-                                "Please select a character"])
+                                 "You wait until the fateful night of the "
+                                 + "party, dressing up in your finest attire. "
+                                 + "At the house you're greeted by a elderly "
+                                 + 'butler. "Which guest are you again?" he asks.'])
 
         for i in range(len(self.contacts)):
             threads.append(threading.Thread(target= ClientHandler.start,

@@ -53,8 +53,8 @@ class Deck(object):
                             murderer = None,
                             place = None):
         return self.weapon == weapon and\
-                self.murderer == murderer and\
-                self.place == place
+               self.murderer == murderer and\
+               self.place == place
 
 
 class Element(object):
@@ -151,8 +151,7 @@ class Game(object):
         # for porting/stepping into a room
         self.rooms = LOCATIONS  # deep copy
 
-        weaponSyms = ["~", "!", "#", "$", "%", "&"]  # to be replaced by images for GUI
-
+        weaponSyms = ["~", "!", "#", "$", "%", "&"]
         self.weapons = []
 
         self.deck = Deck(numPlayers)
@@ -163,7 +162,7 @@ class Game(object):
             x, y = LOCATIONS[room]
             weaponSym = random.choice(weaponSyms)
             self.weapons.append(Weapon(x, y, weaponSym))
-            self.map = self.map[0:((y*77) + x)] + weaponSym + self.map[((y*77) + x + 1):]  # move this to element class
+            self.map = self.map[0:((y*77) + x)] + weaponSym + self.map[((y*77) + x + 1):]
             places.remove(room)
             weaponSyms.remove(weaponSym)
 
@@ -241,7 +240,7 @@ class Game(object):
         if actionKey not in actionOpts:
             return (False, "That is not an available action. Try again:")
 
-        characterCant = False # FIX ME
+        characterCant = False # TODO: FIX ME
         if characterCant:
             return (False, "You cannot take this action at this time. Try again:")
 

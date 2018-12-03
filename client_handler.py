@@ -46,7 +46,7 @@ class ClientHandler:
 ##############################################################################
     def setName(self, _game, data):
         [self.name] = data
-        self.contacts.notifyAll(Code.INFO, ["{} has joined the game".format(self.name)])
+        self.contacts.notifyAll(Code.INFO, ["{} has RVSPed".format(self.name)])
 
     def leave(self, _game , _data):
         self.contacts.notifyAll(Code.EXIT)
@@ -63,9 +63,18 @@ class ClientHandler:
             self.contacts.notify(   self.id,
                                     Code.DECK,
                                     [ self.deck ])
-            if cont == True:
+            if cont == True:  # All guests have RSVPed
                 self.contacts.notifyAll(Code.INFO,
-                                        "All players have selected characters. Ready to begin.")
+                                        ["Once you arrive you discover to your "
+                                        + "horror that your host, Dr. Fisher, "
+                                        + "has been murdered. Did the hacker "
+                                        + "hijack her life? Did the captain "
+                                        + "guide her to rocky shores? Who "
+                                        + "administrated her final night? "
+                                        + "The butler whispers to you, hands "
+                                        + 'shaking, "It is up to you to find '
+                                        + 'out the truth. Please solve this '
+                                        + 'terrible crime."'])
                 self.contacts.notifyAll(Code.MAP, [self.game.map])
                 self.nextTurn(self.contacts.first, game)
         else:
@@ -119,7 +128,10 @@ class ClientHandler:
             self.nextTurn(next, game)
         else:
             #Correct
-            self.contacts.notifyAll( Code.INFO, ["Game done"])
+            self.contacts.notifyAll( Code.INFO, ["Congratulations " +
+                                                 self.id +
+                                                 "guessed correctly. \
+                                                 The tragic murder is solved!"])
 
 
 ##############################################################################
