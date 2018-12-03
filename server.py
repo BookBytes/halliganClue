@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import socket
-import threading
-import math
+import socket, threading, math, sys, signal
 from game import Game
 from contacts import Contacts
 from client_handler import ClientHandler
@@ -24,6 +22,7 @@ class Server(object):
         self.lock = threading.Lock()
         # TODO: make a dictionary of connections, one sublist for each game
         self.conns = []
+        signal.signal(signal.SIGINT, self.signal_handler)
 
     def run(self):
         addrToGame = {}
@@ -52,7 +51,8 @@ class Server(object):
                             ["You wait until the fateful night of the "
                             + "party, dressing up in your finest attire. "
                             + "At the house you're greeted by a elderly "
-                            + 'butler. "Which guest are you again?" he asks.'])
+                            + 'butler. "Which guest are you again?"'
+                             + "he asks."])
         self.contacts.notifyAll(Code.CHAR_PROMPT,
                                 game.availableSuspects())
                     
@@ -66,6 +66,9 @@ class Server(object):
 
         self.s.shutdown(socket.SHUT_RDWR)
         self.s.close()
+        
+    def signal_handler(obj, num, frame):
+        sys.exit(0)
 
 
 if __name__ == "__main__":
