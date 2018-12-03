@@ -34,7 +34,10 @@ class Client(object):
                             Code.ACC_PROMPT:   self.accusePrompt }
 
     def run(self):
-        self.s.connect(('127.0.0.1', 5005))
+        #host = socket.gethostname()
+        host = raw_input("Please enter the server name: ")
+        port = 5005
+        self.s.connect((host, port))
         self.waitToStart()
 
     def waitToStart(self):
