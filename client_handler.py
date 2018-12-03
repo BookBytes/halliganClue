@@ -17,7 +17,9 @@ class ClientHandler:
         self.handleMsgCode = {  Code.NAME:      self.setName,
                                 Code.CHAR_REQ:  self.charRequest,
                                 Code.EXIT:      self.leave,
-                                Code.TURN:      self.turn }
+                                Code.TURN:      self.turn,
+                                Code.MOVE:      self.move,
+                                Code.ACCUSE:    self.accuse }
 
     @classmethod
     def start(self, idSelf, game, contacts):
@@ -44,11 +46,11 @@ class ClientHandler:
 ##############################################################################
     def setName(self, _game, data):
         [self.name] = data
-        self.contacts.notifyAll(Code.DATA, ["{} has joined the game".format(self.name)])
+        self.contacts.notifyAll(Code.INFO, ["{} has joined the game".format(self.name)])
 
     def leave(self, _game , _data):
         self.contacts.notifyAll(Code.EXIT)
-        exit()
+        self.gameInProgress = False
 
     def charRequest(self, game, data):
         [charKey] = data
@@ -62,12 +64,10 @@ class ClientHandler:
                                     Code.DECK,
                                     [ self.deck ])
             if cont == True:
-                self.contacts.notifyAll(Code.DATA,
+                self.contacts.notifyAll(Code.INFO,
                                         "All players have selected characters. Ready to begin.")
                 self.contacts.notifyAll(Code.MAP, [self.game.map])
-                self.contacts.notify(   self.contacts.first,
-                                        Code.TURN_PROMPT,
-                                        [ game.startTurnActions(), ""])
+                self.nextTurn(self.contacts.first, game)
         else:
             self.contacts.notify(   self.id,
                                     Code.CHAR_PROMPT,
@@ -76,13 +76,51 @@ class ClientHandler:
 
     def turn(self, game, data):
         actKey, actionOpts = data
-        action, err = game.canTakeAction(self.character, actKey, actionOpts)
-        if err:
+        action, feedback = game.canTakeAction(self.character, actKey, actionOpts)
+        if feedback:
             self.contacts.notify(   self.id,
                                     Code.TURN_PROMPT,
-                                    [ game.startTurnActions(), err ])
+                                    [ game.startTurnActions(), feedback])
         else:
             self.actionHandlers[action](game)
+
+    def move(self, game, data):
+        diceRoll, movement = data
+        success, feedback = game.move(self.character, diceRoll, movement)
+        if success:
+            self.contacts.notifyAll(Code.MAP, [self.game.map])
+            moveStr = "{} moved to {}".format(self.character.value, feedback)
+            self.contacts.notifyAll(Code.INFO, [moveStr])
+            contActions = self.game.continueTurnActions(self.character)
+            self.contacts.notify(   self.id,
+                                    Code.TURN_CONT,
+                                    [ contActions,
+                                      "Would you like to take further action?"])
+        else:
+            self.contacts.notify(   self.id,
+                                    Code.MOVE_PROMPT,
+                                    [ diceRoll, feedback] )
+    def accuse(self, game, data):
+        murderer, weapon, location = data
+        print murderer
+        print weapon
+        print location
+        success, feedback = game.checkSolution( weaponK = weapon,
+                                                murdererK = murderer,
+                                                placeK = location)
+        if success == -1:
+            # Invalid
+            self.contacts.notify(self.id, Code.ACC_PROMPT, [feedback])
+        elif success == 0:
+            # Incorrect
+            self.contacts.notifyAll( Code.INFO, ["Accusation incorrect"])
+            next = self.contacts.nextId(self.id)
+            # Remove from turn order
+            self.nextTurn(next, game)
+        else:
+            #Correct
+            self.contacts.notifyAll( Code.INFO, ["Game done"])
+
 
 ##############################################################################
 ### Action Handlers
@@ -100,10 +138,15 @@ class ClientHandler:
 
     def roll(self, game):
         dice = game.roll()
-        self.contacts.notifyAll( Code.DATA,
+        self.contacts.notifyAll( Code.INFO,
                                  ["{} rolled {}".format(self.name, dice)])
         self.contacts.notify(   self.id,
                                 Code.MOVE_PROMPT,
                                 [dice, ""] )
 
 ##############################################################################
+
+    def nextTurn(self, id, game):
+        self.contacts.notify(   id,
+                                Code.TURN_PROMPT,
+                                [ game.startTurnActions(), ""])
