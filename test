@@ -1,8 +1,8 @@
 #!/bin/csh
 killall xterm
-xterm -e 'python server.py' &
+xterm -e 'python server.py; bash' &
 sleep 1
 foreach x (`seq 1 3`)
-	xterm -e 'python client.py' &
+	xterm -e 'python client.py; bash' &
 end
 #EOF

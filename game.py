@@ -23,11 +23,10 @@ class Deck(object):
         weapons = list(WeaponsList)
         places = list(PlacesList)
 
-        char = self.draw(suspects)
-        weapon = self.draw(weapons)
-        place = self.draw(places)
+        self.murderer = self.draw(suspects)
+        self.weapon = self.draw(weapons)
+        self.place = self.draw(places)
 
-        self.solution = [char, weapon, place]
         self.userCards = suspects + weapons + places
         self.handSize = len(self.userCards)/numPlayers
 
@@ -50,8 +49,12 @@ class Deck(object):
             hand.append(card)
         return hand
 
-    def checkSolution(self, guess):
-        return self.solution == guess
+    def checkSolution(self, weapon = None,
+                            murderer = None,
+                            place = None):
+        return self.weapon == weapon and\
+                self.murderer == murderer and\
+                self.place == place
 
 
 class Element(object):
@@ -170,10 +173,17 @@ class Game(object):
 
     @locked
     def claimSuspect(self, suspectKey):
-        """ Requests a given suspect via suspect code and removes it from list
-            if it is still available. Returns character if request is successful,
-            false otherwise. Returns reason if failure, true if last players
-            to select"""
+        """ Tries to claim specified character.
+            Args:
+                Suspect key
+            Returns:
+                success  -  character if successful,
+                            False otherwise
+                feedback -  if claim is successful:
+                                True if all players have claimed suspects
+                                False otherwise
+                            error message if claim fails,
+        """
 
         if (suspectKey not in KEY_MAP) or not isinstance(KEY_MAP[suspectKey], SuspectList):
                 return (False, "That is not a valid suspect code, try again.")
@@ -186,30 +196,47 @@ class Game(object):
         else:
             return (False, "That character is already chosen")
 
-    @locked
-    def availableSuspects(self):
-        """ Returns a json serializble suspect list """
-        return self.toKeyDict(self.suspects)
 
     def toKeyDict(self, list):
+        """ Converts list to key: string dictionary"""
         return {self.mapToSym[x]:x.value for x in list}
 
     @locked
+    def availableSuspects(self):
+        """ Returns a dict suspect list """
+        return self.toKeyDict(self.suspects)
+
+    @locked
     def getHand(self):
+        """ Returns dictionary of cards. """
         cards = self.deck.dealPlayer()
         return self.toKeyDict(cards)
 
     def startTurnActions(self):
+        """ Returns dictionary of actions performable
+            at start of turn. """
         actions = [Actions.ROLL, Actions.SNEAK, Actions.ACCUSE]
         return self.toKeyDict(actions)
 
-    def contTurnActions(self, character):
+    def continueTurnActions(self, character):
+        """ Returns dictionary of actions a character can
+            perform given their location. """
         # If character is in room, allow suggestions
-        actions = [Actions.ACCUSE, Actions.SUGGEST]
+        actions = [Actions.ACCUSE, Actions.SUGGEST, Actions.FINISH]
         return self.toKeyDict(actions)
 
     def canTakeAction(self, character, actionKey, actionOpts):
-        # If character not in room, can't accuse, take passageway
+        """ Moves the character to a new board location.
+            Args:
+                Character Enumeration
+                Action key
+                List of offered action keys
+            Returns:
+                success  -  Action enum if allowed
+                            False if action not allowed,
+                feedback -  None if successful
+                            error message if failure,
+                            """
         failure = None
         if actionKey not in actionOpts:
             return (False, "That is not an available action. Try again:")
@@ -220,6 +247,57 @@ class Game(object):
 
         return (KEY_MAP[actionKey], None)
 
+    @locked
+    def move(self, character, roll, movement):
+        """ Moves the character to a new board location.
+            Args:
+                Character Enumeration
+                Dice roll number
+                Movement String
+            Returns:
+                success  - boolean, was move successful
+                feedback - new location if successful
+                           error message if failure"""
+
+        return (True, "Kitchen")
 
     def roll(self):
         return random.randint(1, 6)
+
+    def checkSolution(self, weaponK = None,
+                            murdererK = None,
+                            placeK = None):
+        """ Checks game solution.
+            Args:
+                guess - keys for [murderer, weapon, place]
+            Returns:
+                success  -  -1 if not valid
+                             1 if valid and successful,
+                             0 otherwise
+                feedback -  None if successful
+                            Failure reason if not valid
+                            Solution if valid but incorrect  """
+
+        if murdererK in KEY_MAP and \
+                isinstance(KEY_MAP[murdererK], SuspectList):
+            murderer = KEY_MAP[murdererK]
+        else:
+            return (-1, "That is not a suspect, please try again")
+        if weaponK in KEY_MAP and \
+            isinstance(KEY_MAP[weaponK], WeaponsList):
+            weapon = KEY_MAP[weaponK]
+        else:
+            return (-1, "That is not a weapon, please try again")
+        if placeK in KEY_MAP and \
+            isinstance(KEY_MAP[placeK], PlacesList):
+            place = KEY_MAP[placeK]
+        else:
+            return (-1, "That is not a place, please try again")
+
+        correct = self.deck.checkSolution(  weapon = weapon,
+                                            murderer = murderer,
+                                            place = place )
+        if correct:
+            return (1, None)
+        else:
+            return (0, "That accusation was incorrect")

@@ -26,10 +26,12 @@ class Client(object):
         self.handleMsgCode = { Code.EXIT:      self.leave,
                             Code.CHAR_PROMPT:  self.charPrompt,
                             Code.CHAR_ACC:     self.charAccept,
-                            Code.DATA:         self.printData,
+                            Code.INFO:         self.printData,
                             Code.MAP:          self.printMap,
                             Code.DECK:         self.printData,
-                            Code.TURN_PROMPT:  self.turnPrompt }
+                            Code.TURN_PROMPT:  self.turnPrompt,
+                            Code.MOVE_PROMPT:  self.movePrompt,
+                            Code.ACC_PROMPT:   self.accusePrompt }
 
     def run(self):
         self.s.connect(('127.0.0.1', 5005))
@@ -42,12 +44,7 @@ class Client(object):
 
         msg = receiveNextMsg(self.s)
         # Might want to drop this out or have a count down or something?
-        while msg and msg.command != Code.START:
-            # print "Received:"
-            # print msg.command
-            # data = msg.data
-            # print data
-            # print "------"
+        while msg.command != Code.START:
             msg = receiveNextMsg(self.s)
         [self.id] = msg.data
         print msg.pretty()
@@ -91,7 +88,6 @@ class Client(object):
     def leave(self, _data ):
         self.s.shutdown(socket.SHUT_RDWR)
         self.s.close()
-        time.sleep(3)
         exit()
 
     def charPrompt(self, data):
@@ -107,6 +103,19 @@ class Client(object):
         options, reason = data
         action = raw_input("What action will you take? : ")
         self.send(Code.TURN, [action, options.keys() ])
+
+    def movePrompt(self, data):
+        diceRoll, reason = data
+        movement = raw_input("")
+        self.send(Code.MOVE, [diceRoll, movement])
+
+    def accusePrompt(self, data):
+        [reason] = data
+        murderer = raw_input("Murderer: ")
+        weapon = raw_input("Weapon: ")
+        location = raw_input("Location: ")
+        self.send(Code.ACCUSE, [murderer, weapon, location])
+
 
 ##############################################################################
 
