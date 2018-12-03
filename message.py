@@ -8,11 +8,6 @@ SIZE_DIGITS = 4 # Length of the string representing the message size
 
 def receiveNextMsg(conn):
     """ Receives next set of data based on prepended size information """
-    """ Might need to try/catch this for closing socket"""
-    # msgSize = conn.recv(SIZE_DIGITS)
-    # rawMsg = conn.recv(int(msgSize))
-    # msg = Message(str = rawMsg)
-    # return msg
     try:
         msgSize = conn.recv(SIZE_DIGITS)
         rawMsg = conn.recv(int(msgSize))

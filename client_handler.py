@@ -49,8 +49,7 @@ class ClientHandler:
 ##############################################################################
     def setName(self, data):
         [self.name] = data
-        self.contacts.notifyAll(Code.INFO,
-                    ["{} has joined the self.game".format(self.name)])
+        self.contacts.notifyAll(Code.INFO, ["{} has RVSPed".format(self.name)])
 
     def leave(self, _data):
         self.contacts.notifyAll(Code.EXIT)
@@ -64,12 +63,19 @@ class ClientHandler:
             self.contacts.notifyAll(Code.CHAR_ACC,
                                 [self.name, self.id, char.name, char.value])
             self.deck = self.game.getHand()
-            self.contacts.notify(   self.id,
-                                    Code.DECK,
-                                    self.deck )
+            self.contacts.notify( self.id, Code.DECK, self.deck )
             if feedback == True:
                 self.contacts.notifyAll(Code.INFO,
-                    "All players have selected characters. Ready to begin.")
+                                        ["Once you arrive you discover to your "
+                                        + "horror that your host, Dr. Fisher, "
+                                        + "has been murdered. Did the hacker "
+                                        + "hijack her life? Did the captain "
+                                        + "guide her to rocky shores? Who "
+                                        + "administrated her final night? "
+                                        + "The butler whispers to you, hands "
+                                        + 'shaking, "It is up to you to find '
+                                        + 'out the truth. Please solve this '
+                                        + 'terrible crime."'])
                 self.contacts.notifyAll(Code.MAP, [self.game.map])
                 self.nextTurn(self.contacts.first)
         else: # Character already taken
@@ -124,7 +130,10 @@ class ClientHandler:
             self.nextTurn(next)
         else:
             #Correct
-            self.contacts.notifyAll( Code.INFO, ["Game done"])
+            self.contacts.notifyAll( Code.INFO, ["Congratulations " +
+                                                 self.id +
+                                                 "guessed correctly. \
+                                                 The tragic murder is solved!"])
 
     def suggest(self, data):
         suggesterId, [murderer, weapon, location] = data

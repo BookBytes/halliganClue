@@ -37,11 +37,16 @@ class Client(object):
                             Code.SUGGESTION:   self.evalSuggestion }
 
     def run(self):
-        self.s.connect(('127.0.0.1', 5005))
+        #host = socket.gethostname()
+        host = raw_input("Welcome, you've been invited for a formal dinner "
+                          + "at the house of Dr. Fisher to celebrate the end "
+                          + "of the semester. Please enter your host's address: ")
+        port = 5005
+        self.s.connect((host, port))
         self.waitToStart()
 
     def waitToStart(self):
-        self.name = raw_input("What's your name:")
+        self.name = raw_input("Confirm your name on the guest list: ")
 
         self.send(Code.NAME, [self.name])
 
