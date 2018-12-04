@@ -66,16 +66,16 @@ class ClientHandler:
             self.contacts.notify( self.id, Code.DECK, self.deck )
             if feedback == True:
                 self.contacts.notifyAll(Code.INFO,
-                                        ["Once you arrive you discover to your "
-                                        + "horror that your host, Dr. Fisher, "
-                                        + "has been murdered. Did the hacker "
-                                        + "hijack her life? Did the captain "
-                                        + "guide her to rocky shores? Who "
-                                        + "administrated her final night? "
-                                        + "The butler whispers to you, hands "
-                                        + 'shaking, "It is up to you to find '
-                                        + 'out the truth. Please solve this '
-                                        + 'terrible crime."'])
+                                    ["Once you arrive you discover to your "
+                                    + "horror that your host, Dr. Fisher, "
+                                    + "has been murdered. Did the hacker "
+                                    + "hijack her life? Did the captain "
+                                    + "guide her to rocky shores? Who "
+                                    + "administrated her final night? "
+                                    + "The butler whispers to you, hands "
+                                    + 'shaking, "It is up to you to find '
+                                    + 'out the truth. Please solve this '
+                                    + 'terrible crime."'])
                 self.contacts.notifyAll(Code.MAP, [self.game.map])
                 self.nextTurn(self.contacts.first)
         else: # Character already taken
@@ -90,7 +90,7 @@ class ClientHandler:
                                                         actKey, actionOpts)
         if feedback:
             self.informSelf(feedback)
-            self.nextTurn( self.id )
+            self.nextTurn( self.id, opts = actionOpts) # this is WRONG
         else:
             self.actionHandlers[action]()
 
@@ -122,28 +122,27 @@ class ClientHandler:
         elif success == 0:
             # Incorrect
             self.contacts.notifyAll( Code.INFO, ["Evidence comes to light"
-                                                 + " proving Player "
-                                                 + str(self.id)
+                                                 + " proving "
+                                                 + self.name
                                                  + "'s accusation"
                                                  + " to be incorrect. They"
                                                  + " get the sense that if"
                                                  + " they were to accuse"
                                                  + " anyone else the others"
                                                  + " would not believe them."
-                                                 + " Player" + str(self.id)
-                                                 + " decides to follow"
+                                                 + " They decide to follow"
                                                  + " the others around and"
                                                  + " see what they find"
                                                  + " instead."])
-            next = self.contacts.nextId(self.id)
+            next = self.contacts.nextTurnId(self.id)
             self.contacts.remove(self.id)
             self.nextTurn(next)
         else:
             #Correct
             self.contacts.notifyAll( Code.INFO, ["Congratulations " +
                                                  self.id +
-                                                 " guessed correctly." +
-                                                 " The tragic murder is solved."])
+                                            " guessed correctly." +
+                                            " The tragic murder is solved."])
 
     def suggest(self, data):
         suggesterId, [murderer, weapon, location] = data
@@ -158,7 +157,7 @@ class ClientHandler:
                                                 success["murderer"].value,
                                                 success["place"].value,
                                                 success["weapon"].value )])
-            next = self.contacts.nextId(self.id)
+            next = self.contacts.nextPlayerId(self.id)
             self.contacts.notify( next, Code.SUGGESTION, data )
         else:
             self.informSelf(feedback)
@@ -173,7 +172,7 @@ class ClientHandler:
                 notifyStr = "{} showed you {}".format(self.name,
                                                 keyDict[key])
                 self.contacts.notify(id, Code.INFO, [notifyStr])
-                self.nextTurn(self.contacts.nextId(id))
+                self.nextTurn(self.contacts.nextTurnId(id))
             else: # invalid key
                 self.contacts.notify(   self.id,
                                         Code.INFO,
@@ -182,16 +181,16 @@ class ClientHandler:
                                         Code.SUGGESTION,
                                         [id, sugKeys])
         else: # Player had no match
-            next = self.contacts.nextId(self.id)
+            next = self.contacts.nextPlayerId(self.id)
             if next == id: # Gone full circle
-                self.contacts.notifyAll( self.INFO,
+                self.contacts.notifyAll( Code.INFO,
                                         ["No one had a card."])
                 # Turn goes to player after suggestor
-                self.nextTurn( self.contacts.nextId(next) )
+                self.nextTurn( self.contacts.nextTurnId(id) )
             else: #Pass suggestion on
                 self.contacts.notifyAll(Code.INFO,
                             ["{} did not show a card.".format(self.name)])
-                self.contacts.notify(   next,
+                self.contacts.notify(   self.contacts.nextPlayerId(self.id),
                                         Code.SUGGESTION,
                                         [id, sugKeys])
 
@@ -222,16 +221,18 @@ class ClientHandler:
         self.contacts.notify( self.id, Code.SUG_PROMPT)
 
     def finishTurn(self):
-        self.nextTurn(self.contacts.nextId(self.id))
+        self.nextTurn(self.contacts.nextTurnId(self.id))
 
 ##############################################################################
 ##      Common actions
 ##############################################################################
 
-    def nextTurn(self, id):
+    def nextTurn(self, id, opts = None):
+        if opts == None:
+            opts = self.game.startTurnActions()
         self.contacts.notify(   id,
                                 Code.TURN_PROMPT,
-                                self.game.startTurnActions() )
+                                opts )
 
     def informSelf(self, text):
         self.contacts.notify(   self.id,

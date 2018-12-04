@@ -24,8 +24,8 @@ class Client(object):
 
     def run(self):
         host = raw_input("Welcome, you've been invited for a formal dinner "
-                          + "at the house of Dr. Fisher to celebrate the end "
-                          + "of the semester. Please enter your host's address: ")
+                    + "at the house of Dr. Fisher to celebrate the end "
+                    + "of the semester. Please enter your host's address: ")
         port = 5005
         self.s.connect((host, port))
         self.waitToStart()
@@ -60,7 +60,7 @@ class Client(object):
     def send(self, command, data = None):
         msg = Message(command = command, data = data)
         self.s.send( msg.encode() )
-        
+
     def signal_handler(obj, num, frame):
         sys.exit(0)
 
@@ -96,7 +96,7 @@ class Client(object):
     def turnPrompt(self, data):
         options = data
         action = raw_input("What action will you take? : ")
-        self.send(Code.TURN, [action, options.keys() ])
+        self.send(Code.TURN, [action, options ])
 
     def movePrompt(self, data):
         [diceRoll] = data

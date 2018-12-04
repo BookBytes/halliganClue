@@ -184,7 +184,8 @@ class Game(object):
                             error message if claim fails,
         """
 
-        if (suspectKey not in KEY_MAP) or not isinstance(KEY_MAP[suspectKey], SuspectList):
+        if (suspectKey not in KEY_MAP) or\
+            not isinstance(KEY_MAP[suspectKey], SuspectList):
                 return (False, "That is not a valid suspect code, try again.")
 
         suspect = KEY_MAP[suspectKey]
@@ -242,7 +243,8 @@ class Game(object):
 
         characterCant = False # TODO: FIX ME
         if characterCant:
-            return (False, "You cannot take this action at this time. Try again:")
+            return (False,
+                    "You cannot take this action at this time. Try again:")
 
         return (KEY_MAP[actionKey], None)
 

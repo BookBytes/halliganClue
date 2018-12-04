@@ -15,14 +15,15 @@ def receiveNextMsg(conn):
         return msg
     except:
         print conn.recv(1024)
-        return Message(command = Code.EXIT)
+        return Message( command = Code.EXIT,
+                        data = "Something went wrong, exiting now.")
 
 
 class Code(Enum):
     """ Valid message commands """
     NAME = 1         # Sends player name to server
     START = 2        # Send with no data, contacts will append id
-    EXIT = 3
+    EXIT = 3         # [reason]
     INFO = 4         # This is for misc. data BESIDES map
     CHAR_REQ = 5     # Request a character, [charKey]
     CHAR_PROMPT = 6  # Rejects a character request [available charCodes]
@@ -30,7 +31,7 @@ class Code(Enum):
                      # [name, id, charCode, charName]
     MAP = 9          # Sends the board game "map"
     DECK = 10        # Cards [name of enums : strings]
-    TURN_PROMPT = 11 # prompts turn [[key: action string]] roll, passage, accuse
+    TURN_PROMPT = 11 # prompts turn [[key: action ]] roll, passage, accuse
     TURN = 20        # response to TURN_PROMPT [actionKey, [promptedKeys]]
     MOVE_PROMPT = 12 # [diceRoll]
     MOVE = 13        # Walk request [diceRoll, moveStr]
@@ -82,7 +83,6 @@ class Message:
 ### Return Types
 # Simple strings
 basicStrings = {
-                Code.EXIT:      'Something went wrong, exiting game.',
                 Code.ACC_PROMPT: 'Make an accusation',
                 Code.SUG_PROMPT: 'Make an suggestion',
                 Code.SUGGESTION: 'Show card to disprove this suggestion:'
@@ -93,15 +93,20 @@ formatStrs = {  Code.START:     'You are player {0}',
                 Code.CHAR_ACC:  '{0} (Player {1}) is here as {3}',
                 Code.MAP:       '\n{0}\n',
                 Code.INFO:      '{0}',
+                Code.EXIT:      '{0}',
                 Code.MOVE_PROMPT: 'Move your character (max {0}):'
              }
 
 # Functions
 formatFuncs = {
-                Code.CHAR_PROMPT: (lambda d : stringifyDict("Available characters:", d)),
-                Code.DECK: (lambda d : stringifyDict("Your cards:", d)),
-                Code.TURN_PROMPT: (lambda d : stringifyDict("Action Options:", d)),
-                Code.TURN_CONT: (lambda d: stringifyDict("Action Options:", d ))
+                Code.CHAR_PROMPT:
+                    (lambda d : stringifyDict("Available characters:", d)),
+                Code.DECK:
+                    (lambda d : stringifyDict("Your cards:", d)),
+                Code.TURN_PROMPT:
+                    (lambda d : stringifyDict("Action Options:", d)),
+                Code.TURN_CONT:
+                    (lambda d: stringifyDict("Action Options:", d ))
               }
 
 def stringifyDict(text, dict, leftSpace = 35):

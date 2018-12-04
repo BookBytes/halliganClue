@@ -23,9 +23,14 @@ class Contacts:
         except:
             print "msg failed"
 
-    def nextId(self, id):
+    def nextTurnId(self, id):
+        # Does not return removed players
         index = self.order.index(id)
         return self.order[ (index + 1) % len(self.order) ]
+
+    def nextPlayerId(self, id):
+        # Returns removed players
+        return (id + 1) % len(self.contacts)
 
     def remove(self, id):
         self.order.remove(id)
