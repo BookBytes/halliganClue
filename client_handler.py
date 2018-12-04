@@ -113,15 +113,28 @@ class ClientHandler:
     def accuse(self, data):
         murderer, weapon, location = data
         success, feedback = self.game.checkSolution( weaponK = weapon,
-                                                murdererK = murderer,
-                                                placeK = location)
+                                                     murdererK = murderer,
+                                                     placeK = location)
         if success == -1:
             # Invalid
             self.informSelf(feedback)
             self.contacts.notify( self.id, Code.ACC_PROMPT )
         elif success == 0:
             # Incorrect
-            self.contacts.notifyAll( Code.INFO, ["Accusation incorrect"])
+            self.contacts.notifyAll( Code.INFO, ["Evidence comes to light"
+                                                 + " proving Player "
+                                                 + str(self.id)
+                                                 + "'s accusation"
+                                                 + " to be incorrect. They"
+                                                 + " get the sense that if"
+                                                 + " they were to accuse"
+                                                 + " anyone else the others"
+                                                 + " would not believe them."
+                                                 + " Player" + str(self.id)
+                                                 + " decides to follow"
+                                                 + " the others around and"
+                                                 + " see what they find"
+                                                 + " instead."])
             next = self.contacts.nextId(self.id)
             self.contacts.remove(self.id)
             self.nextTurn(next)
@@ -129,8 +142,8 @@ class ClientHandler:
             #Correct
             self.contacts.notifyAll( Code.INFO, ["Congratulations " +
                                                  self.id +
-                                                 "guessed correctly. \
-                                                 The tragic murder is solved!"])
+                                                 " guessed correctly." +
+                                                 " The tragic murder is solved."])
 
     def suggest(self, data):
         suggesterId, [murderer, weapon, location] = data
