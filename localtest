@@ -1,0 +1,8 @@
+#! /bin/bash
+killall xterm
+xterm -e 'python server.py; bash' &
+sleep 1
+xterm -e 'python client.py; bash' &
+xterm -e 'python client.py; bash' &
+xterm -e 'python client.py; bash' &
+
