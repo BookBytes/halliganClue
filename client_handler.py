@@ -116,8 +116,8 @@ class ClientHandler:
         print weapon
         print location
         success, feedback = self.game.checkSolution( weaponK = weapon,
-                                                murdererK = murderer,
-                                                placeK = location)
+                                                     murdererK = murderer,
+                                                     placeK = location)
         if success == -1:
             # Invalid
             self.informSelf(feedback)
@@ -125,13 +125,15 @@ class ClientHandler:
         elif success == 0:
             # Incorrect
             self.contacts.notifyAll( Code.INFO, ["Evidence comes to light"
-                                                 + " proving your accusation"
-                                                 + " to be incorrect. You"
+                                                 + " proving " + self.id
+                                                 + "'s accusation"
+                                                 + " to be incorrect. They"
                                                  + " get the sense that if"
-                                                 + " you were to accuse"
+                                                 + " they were to accuse"
                                                  + " anyone else the others"
-                                                 + " would not believe you."
-                                                 + " You decide to follow"
+                                                 + " would not believe them."
+                                                 + " Player" + self.id
+                                                 + " decides to follow"
                                                  + " the others around and"
                                                  + " see what they find"
                                                  + " instead."])

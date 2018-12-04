@@ -26,7 +26,8 @@ class Code(Enum):
     INFO = 4         # This is for misc. data BESIDES map
     CHAR_REQ = 5     # Request a character, [charKey]
     CHAR_PROMPT = 6  # Rejects a character request [available charCodes]
-    CHAR_ACC = 7     # Notifies of accepted character request [name, id, charCode, charName]
+    CHAR_ACC = 7     # Notifies of accepted character request
+                     # [name, id, charCode, charName]
     MAP = 9          # Sends the board game "map"
     DECK = 10        # Cards [name of enums : strings]
     TURN_PROMPT = 11 # prompts turn [[key: action string]] roll, passage, accuse
@@ -35,8 +36,10 @@ class Code(Enum):
     MOVE = 13        # Walk request [diceRoll, moveStr]
     TURN_CONT = 14   # prompts turn [[key: action string]] suggest, accuse
     SUG_PROMPT = 15  # Prompts a suggestion
-    SUGGESTION = 16  # [suggesterId, [keys for things suggested]], sent to server and others
-    CARD_SHOW = 17   # [suggesterId, key for card if in hand, [cards in hand], [keys for things suggested]] if no cards -> [none, none]
+    SUGGESTION = 16  # [suggesterId, [keys for things suggested]],
+                     # sent to server and others
+    CARD_SHOW = 17   # [suggesterId, key for card if in hand, [cards in hand],
+                     # [keys for things suggested]] if no cards -> [none, none]
     ACC_PROMPT = 18  # Prompts an accusation
     ACCUSE = 19      # [keys for things accusing]
 
@@ -87,7 +90,7 @@ basicStrings = {
 
 # Strings with embedded data
 formatStrs = {  Code.START:     'Your id is {0}',
-                Code.CHAR_ACC:  '{0} (Player {1}) has selected {3}',
+                Code.CHAR_ACC:  '{0} (Player {1}) is here as {3}',
                 Code.MAP:       '\n{0}\n',
                 Code.INFO:      '{0}',
                 Code.MOVE_PROMPT: 'Move your character (max {0}):'
