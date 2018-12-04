@@ -125,14 +125,15 @@ class ClientHandler:
         elif success == 0:
             # Incorrect
             self.contacts.notifyAll( Code.INFO, ["Evidence comes to light"
-                                                 + " proving " + self.id
+                                                 + " proving Player "
+                                                 + str(self.id)
                                                  + "'s accusation"
                                                  + " to be incorrect. They"
                                                  + " get the sense that if"
                                                  + " they were to accuse"
                                                  + " anyone else the others"
                                                  + " would not believe them."
-                                                 + " Player" + self.id
+                                                 + " Player" + str(self.id)
                                                  + " decides to follow"
                                                  + " the others around and"
                                                  + " see what they find"
