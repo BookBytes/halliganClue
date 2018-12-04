@@ -121,7 +121,9 @@ class ClientHandler:
             self.contacts.notify( self.id, Code.ACC_PROMPT )
         elif success == 0:
             # Incorrect
-            self.contacts.notifyAll( Code.INFO, ["Evidence comes to light"
+            next = self.contacts.nextTurnId(self.id)
+            if next:
+                self.contacts.notifyAll( Code.INFO, ["Evidence comes to light"
                                                  + " proving "
                                                  + self.name
                                                  + "'s accusation"
@@ -134,9 +136,13 @@ class ClientHandler:
                                                  + " the others around and"
                                                  + " see what they find"
                                                  + " instead."])
-            next = self.contacts.nextTurnId(self.id)
-            self.contacts.remove(self.id)
-            self.nextTurn(next)
+
+                self.contacts.remove(self.id)
+                self.nextTurn(next)
+            else:
+                # PRINT SOLUTION
+                self.contacts.notifyAll( Code.EXIT,
+                                ["You get nothing, you lose. Good day, sir."])
         else:
             #Correct
             self.contacts.notifyAll( Code.INFO, ["Congratulations " +

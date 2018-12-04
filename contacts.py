@@ -24,9 +24,12 @@ class Contacts:
             print "msg failed"
 
     def nextTurnId(self, id):
-        # Does not return removed players
+        # Does not return removed players, returns false if no more players
         index = self.order.index(id)
-        return self.order[ (index + 1) % len(self.order) ]
+        if len(self.order):
+            return self.order[ (index + 1) % len(self.order) ]
+        else:
+            return False
 
     def nextPlayerId(self, id):
         # Returns removed players
