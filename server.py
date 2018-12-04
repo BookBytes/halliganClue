@@ -18,9 +18,11 @@ class Server(object):
         port = 5005
         self.s.bind((host, port))
         self.s.listen(10)
-        self.number = 0
+        self.number = -1
+        self.maxPlayers = 2
+        self.maxSessions = 10
         self.lock = threading.Lock()
-        # TODO: make a dictionary of connections, one sublist for each game
+        # A dictionary of connections, one sublist for each game
         self.conns = []
         signal.signal(signal.SIGINT, self.signal_handler)
 
@@ -28,21 +30,37 @@ class Server(object):
         addrToGame = {}
         self.contacts = Contacts()
         addrList = []
+        sessions = []
 
         while 1:
-            while self.number < 3:
+            if self.number == -1:
+                print 'Game ' + str(len(self.conns))
+                session = threading.Thread(target= self.initiateGame,
+                                           args= [addrList])
+                sessions.append(session)
+                self.number += 1
+            if len(sessions) > self.maxSessions:
+                del sessions[0]
+            while self.number < self.maxPlayers:
                 incomingConn, incomingAddr = self.s.accept()
                 if incomingAddr not in addrToGame:
                     self.contacts.add(incomingConn)
                     addrList.append(incomingAddr)
                     addrToGame[incomingAddr] = 1
                     self.number += 1
-                    print 'Connection address:', incomingAddr
-            break
+                    print '>>> Connection address:', incomingAddr
+            #break
+            self.number = -1
+            self.conns.append(addrList)
+            addrList = []
+            session.start()
 
-        self.initiateGame(addrList)
+        for session in sessions:
+            session.join()
+            #self.initiateGame(addrList)
 
     def initiateGame(self, addrList):
+        print addrList
         threads = []
         game = Game(len(addrList))
 

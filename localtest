@@ -5,4 +5,4 @@ sleep 1
 xterm -e 'python client.py; bash' &
 xterm -e 'python client.py; bash' &
 xterm -e 'python client.py; bash' &
-EOF
+
