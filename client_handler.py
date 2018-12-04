@@ -112,9 +112,6 @@ class ClientHandler:
                                     [ diceRoll ] )
     def accuse(self, data):
         murderer, weapon, location = data
-        print murderer
-        print weapon
-        print location
         success, feedback = self.game.checkSolution( weaponK = weapon,
                                                 murdererK = murderer,
                                                 placeK = location)
@@ -126,7 +123,7 @@ class ClientHandler:
             # Incorrect
             self.contacts.notifyAll( Code.INFO, ["Accusation incorrect"])
             next = self.contacts.nextId(self.id)
-            # Remove from turn order
+            self.contacts.remove(self.id)
             self.nextTurn(next)
         else:
             #Correct

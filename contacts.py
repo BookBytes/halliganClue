@@ -9,7 +9,9 @@ class Contacts:
     def add(self, connection):
         """ Adds a connection, eventually this will need to be altered
         to account for order and such. For now id = insertion order. """
-        self.contacts[len(self.contacts)] = connection
+        id = len(self.contacts)
+        self.contacts[id] = connection
+        self.order.append(id)
 
     def notify(self, id, command, data = None):
         """ Notifies the connection with the given id """
@@ -22,7 +24,11 @@ class Contacts:
             print "msg failed"
 
     def nextId(self, id):
-        return (id + 1) % len(self)
+        index = self.order.index(id)
+        return self.order[ (index + 1) % len(self.order) ]
+
+    def remove(self, id):
+        self.order.remove(id)
 
     def notifyAll(self, command, data = None):
         """ Notifies all connections """
