@@ -124,7 +124,17 @@ class ClientHandler:
             self.contacts.notify( self.id, Code.ACC_PROMPT )
         elif success == 0:
             # Incorrect
-            self.contacts.notifyAll( Code.INFO, ["Accusation incorrect"])
+            self.contacts.notifyAll( Code.INFO, ["Evidence comes to light"
+                                                 + " proving your accusation"
+                                                 + " to be incorrect. You"
+                                                 + " get the sense that if"
+                                                 + " you were to accuse"
+                                                 + " anyone else the others"
+                                                 + " would not believe you."
+                                                 + " You decide to follow"
+                                                 + " the others around and"
+                                                 + " see what they find"
+                                                 + " instead."])
             next = self.contacts.nextId(self.id)
             # Remove from turn order
             self.nextTurn(next)
@@ -132,8 +142,8 @@ class ClientHandler:
             #Correct
             self.contacts.notifyAll( Code.INFO, ["Congratulations " +
                                                  self.id +
-                                                 "guessed correctly. \
-                                                 The tragic murder is solved!"])
+                                                 " guessed correctly." +
+                                                 " The tragic murder is solved."])
 
     def suggest(self, data):
         suggesterId, [murderer, weapon, location] = data
