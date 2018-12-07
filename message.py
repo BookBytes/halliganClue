@@ -110,6 +110,7 @@ formatFuncs = {
               }
 
 def stringifyDict(text, dict, leftSpace = 35):
+    """ Prints out dictionarys nicely """
     strArr = [text]
     formatStr = '{{0: <{}}} ({{1}})'.format(leftSpace)
     for key in dict:

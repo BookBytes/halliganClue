@@ -115,38 +115,46 @@ class ClientHandler:
         success, feedback = self.game.checkSolution( weaponK = weapon,
                                                      murdererK = murderer,
                                                      placeK = location)
-        if success == -1:
-            # Invalid
+        if success == -1: # Invalid
             self.informSelf(feedback)
             self.contacts.notify( self.id, Code.ACC_PROMPT )
-        elif success == 0:
-            # Incorrect
-            next = self.contacts.nextTurnId(self.id)
-            if next:
-                self.contacts.notifyAll( Code.INFO, ["Evidence comes to light"
-                                                 + " proving "
-                                                 + self.name
-                                                 + "'s accusation"
-                                                 + " to be incorrect. They"
-                                                 + " get the sense that if"
-                                                 + " they were to accuse"
-                                                 + " anyone else the others"
-                                                 + " would not believe them."
-                                                 + " They decide to follow"
-                                                 + " the others around and"
-                                                 + " see what they find"
-                                                 + " instead."])
+        else: # Valid
+            suggestStr = '{} has made a suggestion: \n{} in the {} with the {}'
 
-                self.contacts.remove(self.id)
-                self.nextTurn(next)
-            else:
-                # PRINT SOLUTION
-                self.contacts.notifyAll( Code.EXIT,
-                                ["You get nothing, you lose. Good day, sir."])
-        else:
-            #Correct
-            self.contacts.notifyAll( Code.INFO, ["Congratulations " +
-                                                 self.id +
+            self.contacts.notifyAll( Code.INFO,
+                                     [suggestStr.format( self.name,
+                                                success["murderer"].value,
+                                                success["place"].value,
+                                                success["weapon"].value )])
+
+            if success == 0:
+                # Incorrect
+                next = self.contacts.nextTurnId(self.id)
+                if next:
+                    self.contacts.notifyAll( Code.INFO,
+                            ["Evidence comes to light"
+                             + " proving "
+                             + self.name
+                             + "'s accusation"
+                             + " to be incorrect. They"
+                             + " get the sense that if"
+                             + " they were to accuse"
+                             + " anyone else the others"
+                             + " would not believe them."
+                             + " They decide to follow"
+                             + " the others around and"
+                             + " see what they find"
+                             + " instead."])
+
+                    self.contacts.remove(self.id)
+                    self.nextTurn(next)
+                else: # Everyone has been eliminated
+                    # PRINT SOLUTION
+                    self.contacts.notifyAll( Code.EXIT,
+                                "You get nothing, you lose. Good day, sir."])
+            else: #Correct
+                self.contacts.notifyAll( Code.INFO, ["Congratulations " +
+                                            self.id +
                                             " guessed correctly." +
                                             " The tragic murder is solved."])
 
