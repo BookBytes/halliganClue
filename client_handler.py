@@ -151,7 +151,7 @@ class ClientHandler:
                 else: # Everyone has been eliminated
                     # PRINT SOLUTION
                     self.contacts.notifyAll( Code.EXIT,
-                                "You get nothing, you lose. Good day, sir."])
+                                ["You get nothing, you lose. Good day, sir."])
             else: #Correct
                 self.contacts.notifyAll( Code.INFO, ["Congratulations " +
                                             self.id +

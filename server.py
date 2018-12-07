@@ -28,7 +28,7 @@ class Server(object):
 
     def run(self):
         addrToGame = {}
-        self.contacts = Contacts()
+        contacts = Contacts()
         addrList = []
         sessions = []
 
@@ -36,15 +36,16 @@ class Server(object):
             if self.number == -1:
                 print 'Game ' + str(len(self.conns))
                 session = threading.Thread(target= self.initiateGame,
-                                           args= [addrList])
+                                           args= [addrList, contacts])
                 sessions.append(session)
                 self.number += 1
+                #contacts = Contacts()
             if len(sessions) > self.maxSessions:
                 del sessions[0]
             while self.number < self.maxPlayers:
                 incomingConn, incomingAddr = self.s.accept()
                 if incomingAddr not in addrToGame:
-                    self.contacts.add(incomingConn)
+                    contacts.add(incomingConn)
                     addrList.append(incomingAddr)
                     addrToGame[incomingAddr] = 1
                     self.number += 1
@@ -59,24 +60,24 @@ class Server(object):
             session.join()
             #self.initiateGame(addrList)
 
-    def initiateGame(self, addrList):
+    def initiateGame(self, addrList, contacts):
         print addrList
         threads = []
         game = Game(len(addrList))
 
-        self.contacts.notifyAll(Code.START)
-        self.contacts.notifyAll(Code.INFO,
+        contacts.notifyAll(Code.START)
+        contacts.notifyAll(Code.INFO,
                             ["You wait until the fateful night of the "
                             + "party, dressing up in your finest attire. "
                             + "At the house you're greeted by a elderly "
                             + 'butler. "Which guest are you again?"'
                              + "he asks."])
-        self.contacts.notifyAll(Code.CHAR_PROMPT,
+        contacts.notifyAll(Code.CHAR_PROMPT,
                                 game.availableSuspects())
-                    
-        for i in range(len(self.contacts)):
+
+        for i in range(len(contacts)):
             threads.append(threading.Thread(target= ClientHandler.start,
-                                            args=(i, game, self.contacts)))
+                                            args=(i, game, contacts)))
             threads[-1].start()
 
         for thread in threads:
@@ -84,7 +85,7 @@ class Server(object):
 
         self.s.shutdown(socket.SHUT_RDWR)
         self.s.close()
-        
+
     def signal_handler(obj, num, frame):
         sys.exit(0)
 

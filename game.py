@@ -108,17 +108,10 @@ class Game(object):
         if self.numPlayers < 2 or self.numPlayers > 6:
             return
 
-        # Characters listed in character player order
-        charNames = ['Megan "The Captain" Monroe',
-                     'Ming "The Hacker" Chow',
-                     'Mark "The Shark" Sheldon',
-                     'Megan "The Administrator" Monaghan',
-                     'Norman "The Linguist" Ramsey',
-                     'Donna "The Coordinator" Cirelli']
-
-        self.characters = {}
 
         self.mapToSym =  {char: key for key, char in KEY_MAP.iteritems()}
+
+        self.characters= {}
 
         self.characters[SuspectList.MEGAN_C] = Suspect(26, 0,
                                             self.mapToSym[SuspectList.MEGAN_C])
@@ -132,17 +125,6 @@ class Game(object):
                                             self.mapToSym[SuspectList.NORMAN])
         self.characters[SuspectList.DONNA] = Suspect(22, 35,
                                             self.mapToSym[SuspectList.DONNA])
-
-        #chars = charNames  # deep copy
-        # mapping of ip addresses to character names;
-        # use this to index into the "characters," aka character objects
-        # NOTE: currently character assignment is random.
-        # It works for any number of players between 2 and 6 (check above).
-        #self.charMapping = []
-        # for addr in addrList:
-        #     char = random.choice(chars)
-        #     self.charMapping[addr] = char
-        #     chars.pop(char)
 
 
         self.items = list(WeaponsList)
@@ -166,9 +148,6 @@ class Game(object):
             places.remove(room)
             weaponSyms.remove(weaponSym)
 
-    def getChar(self, addr):
-        # OBS?
-        return self.charMapping[addr]
 
     @locked
     def claimSuspect(self, suspectKey):
