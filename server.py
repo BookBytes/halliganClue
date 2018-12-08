@@ -28,7 +28,8 @@ class Server(object):
 
     def run(self):
         addrToGame = {}
-        contacts = Contacts()
+        #contacts = Contacts()
+        contacts = []
         addrList = []
         sessions = []
 
@@ -45,25 +46,29 @@ class Server(object):
             while self.number < self.maxPlayers:
                 incomingConn, incomingAddr = self.s.accept()
                 if incomingAddr not in addrToGame:
-                    contacts.add(incomingConn)
+                    #contacts.add(incomingConn)
+                    contacts.append(incomingConn)
                     addrList.append(incomingAddr)
                     addrToGame[incomingAddr] = 1
                     self.number += 1
                     print '>>> Connection address:', incomingAddr
             #break
-            self.number = -1
             self.conns.append(addrList)
-            addrList = []
             session.start()
+            addrList = []
+            self.number = -1
 
         for session in sessions:
             session.join()
             #self.initiateGame(addrList)
 
-    def initiateGame(self, addrList, contacts):
+    def initiateGame(self, addrList, contactList):
         print addrList
         threads = []
         game = Game(len(addrList))
+        contacts = Contacts()
+        for con in contactList:
+            contacts.add(con)
 
         contacts.notifyAll(Code.START)
         contacts.notifyAll(Code.INFO,
