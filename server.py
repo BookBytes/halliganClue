@@ -39,7 +39,7 @@ class Server(object):
                                            args= [addrList, contacts])
                 sessions.append(session)
                 self.number += 1
-                #contacts = Contacts()
+                #contacts = Contacts()  
             if len(sessions) > self.maxSessions:
                 del sessions[0]
             while self.number < self.maxPlayers:
