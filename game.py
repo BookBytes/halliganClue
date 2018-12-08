@@ -285,9 +285,8 @@ class Game(object):
                 success  -  -1 if not valid
                              1 if valid and successful,
                              0 otherwise
-                feedback -  None if successful
-                            Failure reason if not valid
-                            Solution if valid but incorrect  """
+                feedback -  Proposed solution if valid
+                            Failure reason if not valid """
 
         success, feedback = self.isValidTrio(weaponK, murdererK, placeK)
         if success:
@@ -295,8 +294,8 @@ class Game(object):
                                                murderer = success["murderer"],
                                                place = success["place"] )
             if correct:
-                return (1, None)
+                return (1, success)
             else:
-                return (0, "That accusation was incorrect")
+                return (0, success)
         else:
             return (-1, feedback)

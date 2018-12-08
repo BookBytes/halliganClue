@@ -24,19 +24,19 @@ class Contacts:
             print "msg failed"
 
     def nextTurnId(self, id):
-        # Does not return removed players, returns false if no more players
+        # Does not return removed players
         index = self.order.index(id)
-        if len(self.order):
-            return self.order[ (index + 1) % len(self.order) ]
-        else:
-            return False
+        return self.order[ (index + 1) % len(self.order) ]
+
 
     def nextPlayerId(self, id):
         # Returns removed players
         return (id + 1) % len(self.contacts)
 
     def remove(self, id):
+        #Returns true if no more players
         self.order.remove(id)
+        return len(self.order) == 0
 
     def notifyAll(self, command, data = None):
         """ Notifies all connections """

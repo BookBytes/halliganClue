@@ -123,14 +123,23 @@ class ClientHandler:
 
             self.contacts.notifyAll( Code.INFO,
                                      [suggestStr.format( self.name,
-                                                success["murderer"].value,
-                                                success["place"].value,
-                                                success["weapon"].value )])
+                                                feedback["murderer"].value,
+                                                feedback["place"].value,
+                                                feedback["weapon"].value )])
 
             if success == 0:
                 # Incorrect
+
                 next = self.contacts.nextTurnId(self.id)
-                if next:
+                last = self.contacts.remove(self.id)
+
+                if last:
+                    # Everyone has been eliminated
+                        # PRINT SOLUTION
+                    self.contacts.notifyAll( Code.EXIT,
+                                ["You get nothing, you lose. Good day, sir."])
+
+                else:
                     self.contacts.notifyAll( Code.INFO,
                             ["Evidence comes to light"
                              + " proving "
@@ -146,12 +155,7 @@ class ClientHandler:
                              + " see what they find"
                              + " instead."])
 
-                    self.contacts.remove(self.id)
                     self.nextTurn(next)
-                else: # Everyone has been eliminated
-                    # PRINT SOLUTION
-                    self.contacts.notifyAll( Code.EXIT,
-                                ["You get nothing, you lose. Good day, sir."])
             else: #Correct
                 self.contacts.notifyAll( Code.INFO, ["Congratulations " +
                                             self.id +
