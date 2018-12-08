@@ -19,7 +19,7 @@ class Server(object):
         self.s.bind((host, port))
         self.s.listen(10)
         self.number = -1
-        self.maxPlayers = 2
+        self.maxPlayers = 3
         self.maxSessions = 10
         self.lock = threading.Lock()
         # A dictionary of connections, one sublist for each game
