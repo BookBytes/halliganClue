@@ -5,21 +5,13 @@ A Halligan-themed Clue game
 Run ./test in a terminal window with forwarding enabled to automatically create three clients (all client objects called "c").
 
 
-## TODO
-
-- Fix passageways, movements
-- Make up print-out sheets for investigator clue tracker (Juliana) for in-class live demo so everyone can try
-- After game is totally functional change player number back to 6
-- Add message for early start to allow games of varying player group size (2-6), starts automatically at 6
-
-
-
 ## Would be nice
 - Notify everyone turn is being taken
 - Better ordering of player
 - Game end request
 - Block the door
-
+- Fix passageways, movements
+- Add message for early start to allow games of varying player group size (2-6), starts automatically at 6
 
 
 roll, passage
