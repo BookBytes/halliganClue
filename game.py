@@ -163,9 +163,8 @@ class Game(object):
             (x, y) = LOCATIONS[room][0] # Always takes first spot in room
             weaponSym = random.choice(weaponSyms)
             self.weapons.append(Weapon(x, y, weaponSym))
-            self.map = self.map[0:((y*77) + x)] +
-                       weaponSym +
-                       self.map[((y*77) + x + 1):]
+            loc1 = 74*(2*x+1) + 4*y + 1
+            self.map = self.map[:(loc1+1)] + weaponSym + self.map[loc1+2:]
             places.remove(room)
             weaponSyms.remove(weaponSym)
 
