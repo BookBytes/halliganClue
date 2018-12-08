@@ -8,7 +8,7 @@ import random
 import itertools
 import threading
 from game_data import SuspectList, WeaponsList, PlacesList, Actions
-from game_data import MAP, LOCATIONS, KEY_MAP
+from game_data import MAP, LOCATIONS, KEY_MAP, location
 
 
 def locked(func):
@@ -73,24 +73,40 @@ class Suspect(object):
     def __init__(self, x, y, sym):
         self.element = Element(x, y, sym)
 
+    def move_one(self, direction):
+       x,y = self.element.getLocation()
+       new_x, new_y = x,y
+       if direction == "^":
+              new_x -= 1
+       elif direction == "v":
+              new_x += 1
+       elif direction == ">":
+              new_y += 1
+       elif direction == "<":
+              new_y -= 1
+       else:
+              return "Invalid direction " + direction + " provided"
+       if (new_x,new_y) not in location:
+              return "Invalid direction " + direction + " provided"
+       loc1 = 74*(2*x+1) + 4*y + 1
+       MAP = MAP[:(loc1+1)] + " " + MAP[loc1+2:]
+       loc2 = 74*(2*new_x+1) + 4*new_y + 1
+       MAP = MAP[:(loc2+1)] + self.sym + MAP[loc2+2:]
+       self.element.setLocation(new_x,new_y)
+       return "moved successfully"
+
     def walk(self, directions):
-        currX, currY = self.element.getLocation()
-        xMovement = 0
-        yMovement = 0
-
+        x, y = self.element.getLocation()
         for direction in directions:
-            if direction == "^":
-                xMovement -= 1
-            elif direction == "<":
-                yMovement -= 1
-            elif direction == ">":
-                yMovement += 1
-            elif direction == "v":
-                xMovement += 1
-            else:
+            a = move_one(direction)
+            if a != "moved successfully":
+                new_x, new_y = self.element.getLocation()
+                loc2 = 74*(2*new_x+1) + 4*new_y + 1
+                MAP = MAP[:(loc2+1)] + " " + MAP[loc2+2:]
+                loc1 = 74*(2*x+1) + 4*y + 1
+                MAP = MAP[:(loc1+1)] + self.sym + MAP[loc1+2:]
+                self.element.setLocation(x,y)
                 return "Invalid direction " + direction + " provided"
-
-        self.element.setLocation(currX + xMovement, currY + yMovement)
 
 class Weapon(object):
     def __init__(self, x, y, sym):
@@ -141,9 +157,7 @@ class Game(object):
 
         for item in self.items:
             room = random.choice(places)
-            rdata = LOCATIONS[room]
-            print rdata
-            x, y = rdata
+            x, y = LOCATIONS[room]
             weaponSym = random.choice(weaponSyms)
             self.weapons.append(Weapon(x, y, weaponSym))
             self.map = self.map[0:((y*77) + x)] + weaponSym + self.map[((y*77) + x + 1):]
@@ -285,8 +299,9 @@ class Game(object):
                 success  -  -1 if not valid
                              1 if valid and successful,
                              0 otherwise
-                feedback -  Proposed solution if valid
-                            Failure reason if not valid """
+                feedback -  None if successful
+                            Failure reason if not valid
+                            Solution if valid but incorrect  """
 
         success, feedback = self.isValidTrio(weaponK, murdererK, placeK)
         if success:
@@ -294,8 +309,8 @@ class Game(object):
                                                murderer = success["murderer"],
                                                place = success["place"] )
             if correct:
-                return (1, success)
+                return (1, None)
             else:
-                return (0, success)
+                return (0, "That accusation was incorrect")
         else:
             return (-1, feedback)
