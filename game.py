@@ -129,17 +129,17 @@ class Game(object):
 
         self.characters= {}
 
-        self.characters[SuspectList.MEGAN_C] = Suspect(26, 0,
+        self.characters[SuspectList.MEGAN_C] = Suspect(0, 6,
                                             self.mapToSym[SuspectList.MEGAN_C])
-        self.characters[SuspectList.MING] = Suspect(46, 0,
+        self.characters[SuspectList.MING] = Suspect(0, 11,
                                             self.mapToSym[SuspectList.MING])
-        self.characters[SuspectList.MARK] = Suspect(70, 19,
+        self.characters[SuspectList.MARK] = Suspect(9,17,
                                             self.mapToSym[SuspectList.MARK])
-        self.characters[SuspectList.MEGAN_A] = Suspect(2,  27,
+        self.characters[SuspectList.MEGAN_A] = Suspect(13,  0,
                                             self.mapToSym[SuspectList.MEGAN_A])
-        self.characters[SuspectList.NORMAN] = Suspect(70, 27,
+        self.characters[SuspectList.NORMAN] = Suspect(13, 17,
                                             self.mapToSym[SuspectList.NORMAN])
-        self.characters[SuspectList.DONNA] = Suspect(22, 35,
+        self.characters[SuspectList.DONNA] = Suspect(17, 15,
                                             self.mapToSym[SuspectList.DONNA])
 
 
@@ -157,7 +157,7 @@ class Game(object):
 
         for item in self.items:
             room = random.choice(places)
-            x, y = LOCATIONS[room]
+            x, y = LOCATIONS[room][0]
             weaponSym = random.choice(weaponSyms)
             self.weapons.append(Weapon(x, y, weaponSym))
             self.map = self.map[0:((y*77) + x)] + weaponSym + self.map[((y*77) + x + 1):]
