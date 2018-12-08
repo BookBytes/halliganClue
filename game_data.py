@@ -35,10 +35,15 @@ class Actions(Enum):
     FINISH = "Finish your turn"
 
 
-LOCATIONS = {PlacesList.COLLAB: {(2,3)}, PlacesList.ENTRY: {(2,6),(2,11),\
-             (3,7),(3,10)}, PlacesList.EECS: {(3,15)},
-             PlacesList.KITCHEN: {(7,5),(10,4)}, PlacesList.BOWL: {(5,14),(7,16)}, PlacesList.LAB: {(10,15),(11,14)},
-             PlacesList.COUCHES: {(14,4)}, PlacesList.ADMIN: {(13,9),(14,11)}, PlacesList.EXTEN: {(15,14)}}
+LOCATIONS = {PlacesList.COLLAB: [(2,3)],
+             PlacesList.ENTRY: [(2,6),(2,11),(3,7),(3,10)],
+             PlacesList.EECS: [(3,15)],
+             PlacesList.KITCHEN: [(7,5),(10,4)],
+             PlacesList.BOWL: [(5,14),(7,16)],
+             PlacesList.LAB: [(10,15),(11,14)],
+             PlacesList.COUCHES: [(14,4)],
+             PlacesList.ADMIN: [(13,9),(14,11)],
+             PlacesList.EXTEN: [(15,14)]}
 
 
 
