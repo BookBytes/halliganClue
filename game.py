@@ -141,7 +141,9 @@ class Game(object):
 
         for item in self.items:
             room = random.choice(places)
-            x, y = LOCATIONS[room]
+            rdata = LOCATIONS[room]
+            print rdata
+            x, y = rdata
             weaponSym = random.choice(weaponSyms)
             self.weapons.append(Weapon(x, y, weaponSym))
             self.map = self.map[0:((y*77) + x)] + weaponSym + self.map[((y*77) + x + 1):]

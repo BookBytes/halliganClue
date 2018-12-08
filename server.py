@@ -56,6 +56,7 @@ class Server(object):
             self.conns.append(addrList)
             session.start()
             addrList = []
+            contacts = []
             self.number = -1
 
         for session in sessions:
