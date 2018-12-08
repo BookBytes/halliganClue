@@ -42,7 +42,8 @@ class Deck(object):
             return []  # all cards dealt
         # Reference on range
         # https://stackoverflow.com/questions/3685974/
-        # iterate-a-certain-number-of-times-without-storing-the-iteration-number-anywhere
+        # iterate-a-certain-number-of-times-without-
+        # storing-the-iteration-number-anywhere
         hand = []
         for _i in range(self.handSize):
             card = self.draw(self.userCards)
@@ -65,7 +66,7 @@ class Element(object):
     def getLocation(self):
         return self.location
 
-    def setLocation(self, x, y):  # TODO: take map?
+    def setLocation(self, x, y):
         self.location = [x, y]
 
 
@@ -162,7 +163,11 @@ class Game(object):
             (x, y) = LOCATIONS[room][0] # Always takes first spot in room
             weaponSym = random.choice(weaponSyms)
             self.weapons.append(Weapon(x, y, weaponSym))
-            self.map = self.map[0:((y*77) + x)] + weaponSym + self.map[((y*77) + x + 1):]
+            #self.map = self.map[0:((y*77) + x)] +
+            #           weaponSym +
+            #           self.map[((y*77) + x + 1):]
+            loc1 = 74*(2*x+1) + 4*y + 1
+            self.map = self.map[:(loc1+1)] + weaponSym + self.map[loc1+2:]
             places.remove(room)
             weaponSyms.remove(weaponSym)
 

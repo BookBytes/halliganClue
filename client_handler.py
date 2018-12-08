@@ -90,7 +90,7 @@ class ClientHandler:
                                                         actKey, actionOpts)
         if feedback:
             self.informSelf(feedback)
-            self.nextTurn( self.id, opts = actionOpts) # this is WRONG
+            self.nextTurn( self.id, opts = actionOpts)
         else:
             self.actionHandlers[action]()
 

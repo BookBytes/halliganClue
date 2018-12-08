@@ -36,7 +36,6 @@ class Client(object):
         self.send(Code.NAME, [self.name])
 
         msg = receiveNextMsg(self.s)
-        # TODO: Might want to drop this out or have a count down or something?
         while msg.command != Code.START:
             msg = receiveNextMsg(self.s)
         [self.id] = msg.data
