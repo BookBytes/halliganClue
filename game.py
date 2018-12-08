@@ -96,6 +96,8 @@ class Suspect(object):
        return "moved successfully"
 
     def walk(self, directions):
+        # TODO: change back to move all together from step by step because
+        #       otherwise incorrect inputs get unusual move behavior
         x, y = self.element.getLocation()
         for direction in directions:
             a = move_one(direction)
