@@ -100,7 +100,7 @@ class Suspect(object):
         #       otherwise incorrect inputs get unusual move behavior
         x, y = self.element.getLocation()
         for direction in directions:
-            a = move_one(direction)
+            a = self.move_one(direction)
             if a != "moved successfully":
                 new_x, new_y = self.element.getLocation()
                 loc2 = 74*(2*new_x+1) + 4*new_y + 1
@@ -162,7 +162,8 @@ class Game(object):
             (x, y) = LOCATIONS[room][0] # Always takes first spot in room
             weaponSym = random.choice(weaponSyms)
             self.weapons.append(Weapon(x, y, weaponSym))
-            self.map = self.map[0:((y*77) + x)] + weaponSym + self.map[((y*77) + x + 1):]
+            loc1 = 74*(2*x+1) + 4*y + 1
+            self.map = self.map[:(loc1+1)] + weaponSym + self.map[loc1+2:]
             places.remove(room)
             weaponSyms.remove(weaponSym)
 
@@ -245,8 +246,44 @@ class Game(object):
 
         return (KEY_MAP[actionKey], None)
 
+
+
     @locked
-    def move(self, character, roll, movement):
+    def move_one(self,character,direction):
+       x,y = self.characters[character].getLocation()
+       new_x, new_y = x,y
+       if direction == "^":
+              new_x -= 1
+       elif direction == "v":
+              new_x += 1
+       elif direction == ">":
+              new_y += 1
+       elif direction == "<":
+              new_y -= 1
+       else:
+              return "Invalid direction " + direction + " provided"
+       if (new_x,new_y) not in location:
+              return "Invalid direction " + direction + " provided"
+       loc1 = 74*(2*x+1) + 4*y + 1
+       self.map = self.map[:(loc1+1)] + " " + self.map[loc1+2:]
+       loc2 = 74*(2*new_x+1) + 4*new_y + 1
+       self.map = self.map[:(loc2+1)] + characters[character] + self.map[loc2+2:]
+       self.characters[character].setLocation(new_x,new_y)
+       return "moved successfully"
+
+    @locked
+    def move(self, character, roll, directions):
+        x, y = self.characters[character].getLocation()
+        for direction in directions:
+            a = self.move_one(character,direction)
+            if a != "moved successfully":
+                new_x, new_y = self.characters[character].getLocation()
+                loc2 = 74*(2*new_x+1) + 4*new_y + 1
+                self.map = self.map[:(loc2+1)] + " " + self.map[loc2+2:]
+                loc1 = 74*(2*x+1) + 4*y + 1
+                self.map = self.map[:(loc1+1)] + characters[character] + self.map[loc1+2:]
+                self.characters[character].setLocation(x,y)
+                return (False, (x,y))
         """ Moves the character to a new board location.
             Args:
                 Character key
@@ -257,7 +294,7 @@ class Game(object):
                 feedback - new location if successful
                            error message if failure"""
 
-        return (True, "Kitchen")
+        return (True, self.characters[character].getLocation())
 
     def roll(self):
         return random.randint(1, 6)
