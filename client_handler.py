@@ -115,9 +115,12 @@ class ClientHandler:
         success, feedback = self.game.checkSolution( weaponK = weapon,
                                                      murdererK = murderer,
                                                      placeK = location)
+        print feedback
+        
         if success == -1: # Invalid
             self.informSelf(feedback)
             self.contacts.notify( self.id, Code.ACC_PROMPT )
+            
         else: # Valid
             suggestStr = '{} has made a suggestion: \n{} in the {} with the {}'
 
@@ -137,7 +140,7 @@ class ClientHandler:
                     # Everyone has been eliminated
                         # PRINT SOLUTION
                     self.contacts.notifyAll( Code.EXIT,
-                                ["You get nothing, you lose. Good day, sir."])
+                                ["Maybe we should have hired a detective. Good day, sir."])
 
                 else:
                     self.contacts.notifyAll( Code.INFO,
@@ -158,7 +161,7 @@ class ClientHandler:
                     self.nextTurn(next)
             else: #Correct
                 self.contacts.notifyAll( Code.INFO, ["Congratulations " +
-                                            self.id +
+                                            str(self.id) +
                                             " guessed correctly." +
                                             " The tragic murder is solved."])
 

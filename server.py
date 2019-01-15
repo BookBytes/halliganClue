@@ -76,7 +76,7 @@ class Server(object):
                             ["You wait until the fateful night of the "
                             + "party, dressing up in your finest attire. "
                             + "At the house you're greeted by a elderly "
-                            + 'butler. "Which guest are you again?"'
+                            + 'butler. "Which guest are you again?" '
                              + "he asks."])
         contacts.notifyAll(Code.CHAR_PROMPT,
                                 game.availableSuspects())

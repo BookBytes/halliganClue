@@ -69,12 +69,15 @@ class Element(object):
     def setLocation(self, x, y):
         self.location = [x, y]
 
+    def getSymbol(self):
+        return self.sym
+
 
 class Suspect(object):
     def __init__(self, x, y, sym):
         self.element = Element(x, y, sym)
 
-    def move_one(self, direction):
+    def moveOne(self, direction):
        x,y = self.element.getLocation()
        new_x, new_y = x,y
        if direction == "^":
@@ -101,7 +104,7 @@ class Suspect(object):
         #       otherwise incorrect inputs get unusual move behavior
         x, y = self.element.getLocation()
         for direction in directions:
-            a = self.move_one(direction)
+            a = self.moveOne(direction)
             if a != "moved successfully":
                 new_x, new_y = self.element.getLocation()
                 loc2 = 74*(2*new_x+1) + 4*new_y + 1
@@ -111,6 +114,16 @@ class Suspect(object):
                 self.element.setLocation(x,y)
                 return "Invalid direction " + direction + " provided"
 
+    def getLocation(self):
+        return self.element.getLocation()
+
+    def setLocation(self, x, y):
+        self.element.setLocation(x, y)
+
+    def getSymbol(self):
+        return self.element.getSymbol()
+        
+
 class Weapon(object):
     def __init__(self, x, y, sym):
         self.element = Element(x, y, sym)
@@ -119,7 +132,6 @@ class Weapon(object):
 class Game(object):
     def __init__(self, numPlayers):
 
-        # FIX ME
         self.lock = threading.Lock()
         self.suspects = list(SuspectList)
         self.numPlayers = numPlayers
@@ -248,11 +260,15 @@ class Game(object):
         return (KEY_MAP[actionKey], None)
 
 
-
     @locked
-    def move_one(self,character,direction):
-       x,y = self.characters[character].getLocation()
-       new_x, new_y = x,y
+    def moveOne(self, character, direction):
+       print "In moveOne"
+       [x, y] = self.characters[character].getLocation()
+       new_x, new_y = x, y
+
+       print direction
+       print new_x, new_y
+       
        if direction == "^":
               new_x -= 1
        elif direction == "v":
@@ -263,28 +279,25 @@ class Game(object):
               new_y -= 1
        else:
               return "Invalid direction " + direction + " provided"
-       if (new_x,new_y) not in location:
+
+       print new_x, new_y
+       
+       if (new_x, new_y) not in location:
               return "Invalid direction " + direction + " provided"
+
+       print new_x, new_y
        loc1 = 74*(2*x+1) + 4*y + 1
        self.map = self.map[:(loc1+1)] + " " + self.map[loc1+2:]
        loc2 = 74*(2*new_x+1) + 4*new_y + 1
-       self.map = self.map[:(loc2+1)] + characters[character] + self.map[loc2+2:]
-       self.characters[character].setLocation(new_x,new_y)
-       return "moved successfully"
+       print loc1, loc2
+       self.map = self.map[:(loc2+1)] + self.characters[character].getSymbol() + self.map[loc2+2:]
+       self.characters[character].setLocation(new_x, new_y)
+       
+       return "Success"
 
-    @locked
+   
+    #@locked
     def move(self, character, roll, directions):
-        x, y = self.characters[character].getLocation()
-        for direction in directions:
-            a = self.move_one(character,direction)
-            if a != "moved successfully":
-                new_x, new_y = self.characters[character].getLocation()
-                loc2 = 74*(2*new_x+1) + 4*new_y + 1
-                self.map = self.map[:(loc2+1)] + " " + self.map[loc2+2:]
-                loc1 = 74*(2*x+1) + 4*y + 1
-                self.map = self.map[:(loc1+1)] + characters[character] + self.map[loc1+2:]
-                self.characters[character].setLocation(x,y)
-                return (False, (x,y))
         """ Moves the character to a new board location.
             Args:
                 Character key
@@ -294,12 +307,29 @@ class Game(object):
                 success  - boolean, was move successful
                 feedback - new location if successful
                            error message if failure"""
+        [x, y] = self.characters[character].getLocation()
+        print [x, y]
+        for direction in directions:
+            print direction
+            a = self.moveOne(character, direction)
+            print a
+            if a != "Success":
+                [new_x, new_y] = self.characters[character].getLocation()
+                loc2 = 74*(2*new_x+1) + 4*new_y + 1
+                self.map = self.map[:(loc2+1)] + " " + self.map[loc2+2:]
+                loc1 = 74*(2*x+1) + 4*y + 1
+                self.map = self.map[:(loc1+1)] + self.characters[character].getSymbol() + self.map[loc1+2:]
+                
+                self.characters[character].setLocation(x,y)
+                return (False, a) #(x,y))
 
         return (True, self.characters[character].getLocation())
 
+    
     def roll(self):
         return random.randint(1, 6)
 
+    
     def isValidTrio(self,   weaponK = None,
                             murdererK = None,
                             placeK = None):
@@ -312,21 +342,25 @@ class Game(object):
                 feedback -  None if successful
                             First failure reason if not valid """
         trio = {"murderer": None, "weapon": None, "place": None}
+        
         if murdererK in KEY_MAP and \
                 isinstance(KEY_MAP[murdererK], SuspectList):
             trio["murderer"] = KEY_MAP[murdererK]
         else:
             return (False, "That is not a suspect, please try again")
+        
         if weaponK in KEY_MAP and \
             isinstance(KEY_MAP[weaponK], WeaponsList):
             trio["weapon"] = KEY_MAP[weaponK]
         else:
             return (False, "That is not a weapon, please try again")
+        
         if placeK in KEY_MAP and \
             isinstance(KEY_MAP[placeK], PlacesList):
             trio["place"]= KEY_MAP[placeK]
         else:
             return (False, "That is not a place, please try again")
+        
         return (trio, "")
 
     def checkSolution(self, weaponK = None,
@@ -339,9 +373,8 @@ class Game(object):
                 success  -  -1 if not valid
                              1 if valid and successful,
                              0 otherwise
-                feedback -  None if successful
-                            Failure reason if not valid
-                            Solution if valid but incorrect  """
+                feedback -  Proposed solution if valid
+                            Failure reason if not valid  """
 
         success, feedback = self.isValidTrio(weaponK, murdererK, placeK)
         if success:
@@ -349,8 +382,8 @@ class Game(object):
                                                murderer = success["murderer"],
                                                place = success["place"] )
             if correct:
-                return (1, None)
+                return (1, success)
             else:
-                return (0, "That accusation was incorrect")
+                return (0, success)
         else:
             return (-1, feedback)
