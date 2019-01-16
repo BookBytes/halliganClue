@@ -5,22 +5,20 @@ A Halligan-themed Clue game
 To run HalliganClue quickly use our test script.
 Note that all ‘users’ are running on the same device so this is
 a single user acting as all players. The command to run the
-script is as follows. Make sure x11-forwarding is enabled.
+script is as follows. Make sure *x11-forwarding* is enabled.
 
 ./test
 
 The server will pop up first with an address for the clients to
 join (manually). After that simply follow the prompts and solve the murder!
 
-To run the game with all unique users (aka multiple) run:
+To run the game with all *unique users* (aka multiple) run:
 - python server.py
 - python client.py
 - python client.py
 - python client.py
 
-Each of these commands must be run in a separate terminal with a
-separate ssh session into the homework server. This way you'll
-end up on a different computer each time.
+Each of these commands must be run in a separate terminal. (If sshing each must have a separate ssh session.)
 
 ## File Overview
 - client.py
