@@ -59,13 +59,14 @@ We used only the built-in Python library so the entirety of the code is our own.
 
 
 ## Would be nice
+- Fix incomplete move logic
+- Change the incorrect weapon spot next to room 4
 - Notify everyone turn is being taken
-- Better ordering of player
-- Game end request
-- Block the door
 - Fix passageways
+- Game end request
+- Block the door if a character is present (test)
 - Add message for early start to allow games of varying player group size (2-6), starts automatically at 6
-
+- Better ordering of players?
 
 roll, passage
         roll
